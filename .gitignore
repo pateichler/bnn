@@ -1,0 +1,8 @@
+.DS_STORE
+
+.settings
+bin
+
+experiments/*/
+
+*.jar

@@ -1,0 +1,3 @@
+public enum NTAction{
+  EXCITATORY, INHIBITORY, MODULATORY
+}
