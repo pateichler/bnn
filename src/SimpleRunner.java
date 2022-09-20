@@ -7,7 +7,7 @@ public class SimpleRunner extends BrainRunner {
   int growthPeriod = 0;
   int teachIterations = 300;
   int testIterations = 25;
-  int numOptions = 4;
+  int numOptions = 8;
   
   public SimpleRunner(Brain brain) {
     super(brain);

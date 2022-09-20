@@ -1,9 +1,11 @@
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Reader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import com.google.gson.Gson; 
 
@@ -11,37 +13,83 @@ public class Runner {
 
   public static void main(String[] args) {
     Runner r = new Runner();
-    r.run(12);
+    r.runNew();
   }
   
-  public void run(int worldID) {
-    loadConfig();
+  public void runNew() {
+    int worldID = getLastWorldID() + 1;
+    loadGlobalSettings().setInstance();;
     
-//    Genetics[] genePool = r.loadGenePool(0);
+    World w = new World(worldID);
+    
+    try {
+      copySettingsToWorld(worldID);
+    } catch (IOException e) {
+      e.printStackTrace();
+      return;
+    }
+    
+    w.run();
+  }
+  
+  public void runNew(Settings s) {
+    int worldID = getLastWorldID();
+    
+    s.setInstance();;
     
     World w = new World(worldID);
     w.run();
   }
   
-  void loadConfig() {
+  public void runPrevious(int worldID) {
+    Settings s = loadWorldSettings(worldID);
+    runPrevious(worldID, s);
+  }
+  
+  public void runPrevious(int worldID, Settings s) {
+    if(s == null) {
+      System.out.println("Error: no settings given for world ... exiting");
+      return;
+    }
+    
+    s.setInstance();
+    
+    Genetics[] genePool = loadGenePool(worldID);
+    
+    World w = new World(worldID, genePool);
+    w.run();
+  }
+  
+  Settings loadGlobalSettings() {
+    return loadSettingsFromPath(Paths.get("config.json"));
+  }
+  
+  Settings loadWorldSettings(int worldID) {
+    return loadSettingsFromPath(Paths.get("experiments", String.valueOf(worldID), "config.json"));
+  }
+  
+  Settings loadSettingsFromPath(Path path) {
     Reader reader = null;
     try {
-      reader = Files.newBufferedReader(Paths.get("config.json"));
+      reader = Files.newBufferedReader(path);
       
       Gson gson = new Gson();
-      gson.fromJson(reader, Settings.class);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }finally {
+      return gson.fromJson(reader, Settings.class);
+    } catch (IOException e) { }
+    finally {
         try {
           if(reader != null)
             reader.close();
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
     }
+    
+    return null;
+  }
+  
+  void copySettingsToWorld(int worldID) throws IOException {
+    Files.copy(Paths.get("config.json"), Paths.get("experiments", String.valueOf(worldID), "config.json"));
   }
   
   Genetics[] loadGenePool(int worldID) {
@@ -67,9 +115,31 @@ public class Runner {
     return null;
   }
   
+  int getLastWorldID() {
+    File file = new File("experiments");
+    String[] directories = file.list(new FilenameFilter() {
+      @Override
+      public boolean accept(File current, String name) {
+        return new File(current, name).isDirectory();
+      }
+    });
+    
+    int maxID = 0;
+    for(String d : directories) {
+      try {
+        int w = Integer.parseInt(d);
+        if(w > maxID)
+          maxID = w;
+        
+      }catch(NumberFormatException e) { }
+    }
+    
+    return maxID;
+  }
+  
   static void printVariationFromWorld(int worldID) {
     Runner r = new Runner();
-    r.loadConfig();
+    r.loadWorldSettings(worldID).setInstance();
     Genetics[] genePool = r.loadGenePool(5);
     System.out.println("Strength std: " + World.calculateGenePoolVariation(genePool, true));
     System.out.println("Type std: " + World.calculateGenePoolVariation(genePool, false));

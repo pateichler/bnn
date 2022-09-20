@@ -14,11 +14,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
 public class World {
   private Brain[] brains;
   private double[] brainFitness;
-  private int startGen = 1;
   private int id;
   
   private Random rand;
@@ -28,21 +28,21 @@ public class World {
     brainFitness = new double[Settings.Instance.POP_SIZE];
     
     rand = new Random();
+    
+    // Make sure experiment path exists
+    createPath();
   }
   
-  public World(int worldID, Genetics[] genePool, int startGen) {
+  public World(int worldID, Genetics[] genePool) {
     this(worldID);
     
     brains = new Brain[genePool.length];
     for(int i = 0; i < brains.length; i ++)
       brains[i] = new Brain(genePool[i]);
-    
-    this.startGen = startGen;
   }
   
   public void run() {
-    // Make sure experiment path exists
-    createPath();
+    System.out.println("Running world: " + id);
     
     for(int i = 0; i < Settings.Instance.NUM_GENS; i ++) {
       try {
@@ -52,13 +52,13 @@ public class World {
         t = System.currentTimeMillis() - t;
         System.out.println("Generation completed in: " + (double)t/1000 + "s");
       } catch (Exception e) {
-        System.out.println("Error in generation: " + (i + startGen));
+        System.out.println("Error in generation: " + (i));
         e.printStackTrace();
         break;
       }
       
       saveBrains();
-      printSaveGenerationStats(i + startGen);
+      printSaveGenerationStats();
     }
   }
   
@@ -141,11 +141,21 @@ public class World {
     for(int i = 0; i < genePool.length; i++)
       genePool[i] = brains[i].dna;
     
+    int bestIndex = 0;
+    for(int i = 1; i < brainFitness.length; i++)
+      if(brainFitness[i] > brainFitness[bestIndex])
+        bestIndex = i;
+    
+    saveSerObject(genePool, "genePool.ser");
+    saveSerObject(genePool[bestIndex], "bestGenes.ser");
+  }
+  
+  void saveSerObject(Object obj, String fileName) {
     ObjectOutputStream oos = null;
     try {
-      FileOutputStream fout = new FileOutputStream(getFilePath("genePool.ser").toString());
+      FileOutputStream fout = new FileOutputStream(getFilePath(fileName).toString());
       oos = new ObjectOutputStream(fout);
-      oos.writeObject(genePool);
+      oos.writeObject(obj);
     } catch (IOException e) {
       e.printStackTrace();
     }finally{
@@ -158,7 +168,7 @@ public class World {
     }
   }
   
-  void printSaveGenerationStats(int g) {
+  void printSaveGenerationStats() {
     double bestFit = 0;
     double worseFit = Double.POSITIVE_INFINITY;
     double meanFit = 0;
@@ -181,10 +191,12 @@ public class World {
     
     double variation = calculateGenePoolVariation(genePool, true);
     
+    int g = getLastGen() + 1;
+    
     String stats = String.join(",", String.valueOf(g), String.valueOf(bestFit), 
         String.valueOf(worseFit), String.valueOf(meanFit), String.valueOf(variation));
     
-    System.out.println("Gen " + g + ": (" + stats + ")");
+    System.out.println("Gen: (" + stats + ")");
     
     String csvString = stats + "\n";
     
@@ -193,7 +205,35 @@ public class World {
     }catch (IOException e) {
       e.printStackTrace();
     }
+    
+    saveFitnessRaw();
   }
+  
+  int getLastGen() {
+    int lineCount = 0;
+    
+    try (Stream<String> stream = Files.lines(getFilePath("genStats.csv"))) {
+      lineCount = (int)stream.count();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    
+    return lineCount - 1; 
+  }
+  
+  void saveFitnessRaw() {
+    String csvString = "";
+    
+    for(double f : brainFitness)
+      csvString += f + "\n";
+    
+    try {
+      Files.write(getFilePath("lastGenFit.csv"), csvString.getBytes());
+    }catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+  
   
   public static double calculateGenePoolVariation(Genetics[] genePool, boolean strength) {
     int l = strength ? genePool[0].strengthNet.getWeightsLength() : genePool[0].typeNet.getWeightsLength();
@@ -218,7 +258,7 @@ public class World {
     return totStd / l;
   }
   
-  Path getFilePath(String fileName) {
+  public Path getFilePath(String fileName) {
     return Paths.get("experiments", String.valueOf(id), fileName);
   }
   

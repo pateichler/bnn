@@ -3,6 +3,11 @@ public class Settings {
   public static Settings Instance;
   
   public Settings() {
+    if(Instance == null)
+      setInstance();
+  }
+  
+  public void setInstance() {
     Instance = this;
   }
   
