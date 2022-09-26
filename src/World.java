@@ -21,6 +21,8 @@ public class World {
   private double[] brainFitness;
   private int id;
   
+  private CommandInterface iface;
+  
   private Random rand;
   
   public World(int worldID) {
@@ -41,8 +43,15 @@ public class World {
       brains[i] = new Brain(genePool[i]);
   }
   
+  public void setController(CommandInterface iface) {
+    this.iface = iface;
+  }
+  
   public void run() {
     System.out.println("Running world: " + id);
+    
+    if(iface != null)
+      iface.postGenerationStatus(0);
     
     for(int i = 0; i < Settings.Instance.NUM_GENS; i ++) {
       try {
@@ -57,8 +66,17 @@ public class World {
         break;
       }
       
+      if(iface != null && iface.stopWorldImmediately())
+        break;
+      
       saveBrains();
       printSaveGenerationStats();
+      
+      if(iface != null)
+        iface.postGenerationResults(brainFitness);
+      
+      if(iface != null && iface.stopWorld())
+        break;
     }
   }
   
@@ -101,12 +119,18 @@ public class World {
     
     int i = 0;
     for(Future<Double> f : futures) {
-       try {
+      if(iface != null && iface.stopWorldImmediately())
+        return;
+      
+      try {
         brainFitness[i] = f.get();
       } catch (ExecutionException e) {
         e.printStackTrace();
       }
-       i++;
+      i++;
+      
+      if(iface != null)
+        iface.postGenerationStatus(i);
     }
     
     
