@@ -28,7 +28,7 @@ public class Connection {
   public void adjust() {
     int prevStrength = strength;
     double[] input = new double[startNeuron.neuroCountSegment.length * 2];
-    double norm = 1 << Settings.Instance.MAX_CONN_STRENGTH * Settings.Instance.CONN_COUNT / 2;
+    double norm = (1 << Settings.Instance.MAX_CONN_STRENGTH) * Settings.Instance.CONN_COUNT / 2;
     
     for(int i = 0; i < startNeuron.neuroCountSegment.length; i++)
       input[i] = Math.min(startNeuron.neuroCountSegment[i] / norm, 1.0);
