@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class World {
@@ -98,6 +99,7 @@ public class World {
       callableTasks.add(Settings.Instance.createBrainRunner(b)); //TODO: get correct brain runner here
     
     List<Future<Double>> futures = executor.invokeAll(callableTasks);
+    executor.shutdown();
     
     int i = 0;
     for(Future<Double> f : futures) {
