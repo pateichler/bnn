@@ -21,7 +21,10 @@ public class Connection {
   }
   
   public void trigger() {
-    int count = 1 << strength;
+    if(strength == 0)
+      return;
+    
+    int count = 1 << (strength - 1);
     endNeuron.addNT(count, ntType);
   }
   
@@ -41,6 +44,14 @@ public class Connection {
     
     if(prevStrength == 0 && strength > 0)
       ntType = dna.getNTChange(input);
+  }
+  
+  public int getStrength() {
+    return strength;
+  }
+  
+  public int getNtType() {
+    return ntType;
   }
   
   public String toString() {

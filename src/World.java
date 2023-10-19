@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class World {
@@ -68,7 +67,7 @@ public class World {
     if(brains == null) {
       brains = new Brain[Settings.Instance.POP_SIZE];
       for(int i = 0; i < brains.length; i++)
-        brains[i] = new Brain(new Genetics());
+        brains[i] = new Brain(new NNGenetics());
       
       return;
     }
@@ -83,7 +82,7 @@ public class World {
       if(fit1 + fit2 > 0)
         parent1Ratio = Math.min(Settings.Instance.MAX_PARENT_RATIO, Math.max(1 - Settings.Instance.MAX_PARENT_RATIO, fit1 / (fit1 + fit2)));
       
-      Genetics dna = new Genetics(brains[mates[0]].dna, brains[mates[1]].dna, parent1Ratio);
+      Genetics dna = new NNGenetics((NNGenetics)brains[mates[0]].dna, (NNGenetics)brains[mates[1]].dna, parent1Ratio);
       newBrains[i] = new Brain(dna);
     }
     
@@ -238,13 +237,15 @@ public class World {
   
   
   public static double calculateGenePoolVariation(Genetics[] genePool, boolean strength) {
-    int l = strength ? genePool[0].strengthNet.getWeightsLength() : genePool[0].typeNet.getWeightsLength();
+    // TODO: Somehow get this method to work with general genetics
+    
+    int l = strength ? ((NNGenetics)genePool[0]).strengthNet.getWeightsLength() : ((NNGenetics)genePool[0]).typeNet.getWeightsLength();
     double totStd = 0;
     
     double[] weights = new double[genePool.length];
     for(int i = 0; i < l; i++) {
       for(int g = 0; g < genePool.length; g++) 
-        weights[g] = strength ? genePool[g].strengthNet.getWeights(i) : genePool[g].typeNet.getWeights(i); 
+        weights[g] = strength ? ((NNGenetics)genePool[g]).strengthNet.getWeights(i) : ((NNGenetics)genePool[g]).typeNet.getWeights(i); 
     
       double mean = 0;
       for(double n : weights)

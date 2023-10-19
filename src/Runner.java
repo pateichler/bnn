@@ -12,8 +12,18 @@ import com.google.gson.Gson;
 public class Runner {
 
   public static void main(String[] args) {
+//    System.out.println(Runtime.getRuntime().availableProcessors());
+
+//    Runner r = new Runner();
+//    r.loadGlobalSettings();
+//    r.visualizeBrain(new FixedGenetics());
+    
+//    Runner r = new Runner();
+//    r.visualizeBestBrain(48);
+    
     Runner r = new Runner();
     r.runNew();
+//    r.runPrevious(47);
   }
   
   public void runNew() {
@@ -58,6 +68,37 @@ public class Runner {
     
     World w = new World(worldID, genePool);
     w.run();
+  }
+  
+  public void visualizeBestBrain(int worldID) {
+    Settings s = loadWorldSettings(worldID);
+    s.setInstance();
+    Genetics g = loadBestBrain(worldID);
+
+    visualizeBrain(g);
+  }
+  
+  void visualizeBrain(Genetics g) {
+    Brain b = new Brain(g);
+    b.printConnectionStrengths();
+    System.out.println("===============");
+    b.printConnectionTypes();
+    
+    SimpleRunner sr = new SimpleRunner(b);
+    double fit = sr.call();
+    System.out.println("Trained with fitness: " + fit);
+    
+    SimpleRunnerVisualizer v = new SimpleRunnerVisualizer(b);
+    System.out.println("Brain in last state:");
+    v.br.visualize();
+
+    System.out.println("====================");
+    b.printConnectionStrengths();
+    System.out.println("===============");
+    b.printConnectionTypes();
+    
+//    b.clearTransmitters();
+    v.run();
   }
   
   Settings loadGlobalSettings() {
@@ -115,6 +156,29 @@ public class Runner {
     return null;
   }
   
+  Genetics loadBestBrain(int worldID) {
+    String path = Paths.get("experiments", String.valueOf(worldID), "bestGenes.ser").toString();
+    ObjectInputStream oi = null;
+    
+    try {
+      FileInputStream fi = new FileInputStream(new File(path));
+      oi = new ObjectInputStream(fi);
+      return (Genetics) oi.readObject();
+    } catch (IOException | ClassNotFoundException e) {
+      e.printStackTrace();
+    }finally {
+      if(oi != null) {
+        try {
+          oi.close();
+        } catch (IOException e1) {
+          e1.printStackTrace();
+        }
+      }
+    }
+    
+    return null;
+  }
+  
   int getLastWorldID() {
     File file = new File("experiments");
     String[] directories = file.list(new FilenameFilter() {
@@ -146,7 +210,7 @@ public class Runner {
     
     Genetics[] genePoolRandom = new Genetics[genePool.length];
     for(int i = 0; i < genePool.length; i++)
-      genePoolRandom[i] = new Genetics();
+      genePoolRandom[i] = new NNGenetics();
 
     System.out.println("===============");
     System.out.println("Strength random std: " + World.calculateGenePoolVariation(genePoolRandom, true));
@@ -154,11 +218,11 @@ public class Runner {
   }
   
   static void testBrain() {
-    Brain b = new Brain(new Genetics());
+    Brain b = new Brain(new NNGenetics());
     System.out.println(b);
     
     try {
-      Brain b2 = new Brain(new Genetics(b.dna, b.dna));
+      Brain b2 = new Brain(new NNGenetics((NNGenetics)b.dna, (NNGenetics)b.dna));
       System.out.println(b2);
     } catch (Exception e) {
       // TODO Auto-generated catch block

@@ -30,6 +30,9 @@ public class Settings {
   public int CONN_COUNT;
   public String CONN_CONFIG;
   
+  // Neuron
+  public int TRIGGER_COOLDOWN;
+  
   // Connection
   public int NT_THRESHOLD;
   public int CONN_ADJUST_INC;

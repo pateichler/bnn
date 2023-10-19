@@ -7,15 +7,12 @@ public class Brain {
   
   private Random rand;
   
-  private int curStep = 0;
+  
   
   public Brain(Genetics dna) {
     rand = new Random();
     neurons = new Neuron[Settings.Instance.NEURON_COUNT];
     this.dna = dna;
-    
-    if(Settings.Instance.UNSYNC_CONN_ADJUST)
-      curStep = rand.nextInt(Settings.Instance.CONN_ADJUST_INC);
     
     for(int i = 0; i < neurons.length; i ++)
       neurons[i] = new Neuron();
@@ -47,11 +44,8 @@ public class Brain {
     for(Neuron n : neurons)
       n.step();
     
-    if(curStep >= Settings.Instance.CONN_ADJUST_INC)
-      curStep = 0;
-    
     for(Neuron n : neurons)
-      n.postStep(curStep == 0);
+      n.postStep();
   }
   
   void createNeighborConnections() {
@@ -59,7 +53,7 @@ public class Brain {
       Connection[] connections = new Connection[Settings.Instance.CONN_COUNT];
       
       for(int k = 0; k < connections.length; k++)
-        connections[k] = createConnection(n, (n+k) % neurons.length);
+        connections[k] = createConnection(n, (n+k+1) % neurons.length);
       
       neurons[n].setConnections(connections);
     }
@@ -101,6 +95,11 @@ public class Brain {
     return new Connection(dna, neurons[n1], neurons[n2], s, t);
   }
   
+  public void clearTransmitters() {
+   for(Neuron n : neurons)
+     n.clearTransmitters();
+  }
+  
   public void printNumActive() {
     int a = 0;
     for(Neuron n : neurons)
@@ -110,10 +109,19 @@ public class Brain {
     System.out.println("Number active: " + a);
   }
   
-  public String toString() {
-    String s = "Neuron connections:\n";
-    for(Connection c : neurons[0].connections)
-      s += c.toString() + "\n";
-    return s;
+  public void printConnectionStrengths() {
+    for(Neuron n : neurons) {
+      for(Connection c : n.connections)
+        System.out.print(c.getStrength());
+      System.out.println();
+    }
+  }
+  
+  public void printConnectionTypes() {
+    for(Neuron n : neurons) {
+      for(Connection c : n.connections)
+        System.out.print(c.getNtType());
+      System.out.println();
+    }
   }
 }

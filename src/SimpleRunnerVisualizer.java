@@ -1,40 +1,27 @@
 import java.util.Random;
 
-public class SimpleRunner extends BrainRunner {
+// TODO: eliminate this class and maker BrainRunner base class have the ability to visualize
+public class SimpleRunnerVisualizer {
 
   private Random rand;
+  private Brain brain;
+  public BrainVisualizer br;
   
-  int growthPeriod = 0;
   int teachIterations = 500;
-  int testIterations = 50;
   int numOptions = 4;
   
-  public SimpleRunner(Brain brain) {
-    super(brain);
+  public SimpleRunnerVisualizer(Brain brain) {
     rand = new Random();
+    this.brain = brain;
+    br = new BrainVisualizer(brain, numOptions, numOptions, 10, true);
   }
   
-  public Double call() {
-    grow();
-    
-    learn(teachIterations);
-        
-    return learn(testIterations);
-  }
-  
-  void grow() {
-    for(int i = 0; i < growthPeriod; i++)
-      brain.step();
-  }
-  
-  double learn(int iterations) {
-    int numCorrect = 0;
-    
-    for(int i = 0; i < iterations; i++) {
+  public void run() {
+    try {
       int n = (int)(rand.nextDouble() * numOptions);
       brain.neurons[n].addNT(1 << 10, 0);
       
-      brain.step();
+      stepBrain();
       
       boolean correct = false;
       
@@ -56,24 +43,24 @@ public class SimpleRunner extends BrainRunner {
         if(correct)
           break;
         
-        brain.step();
+        stepBrain();
       }
         
       
       if(correct == false)
         brain.neurons[brain.neurons.length - numOptions + n].addNT(1 << 10, Settings.Instance.totalNTCount() - 1);
-      else {
-        numCorrect++;
-        //Possibly do a reward neurotransmitter here
-      }
+      
+      System.out.println("Answered " + (correct ? "correct!" : "wrong"));
       
       int learnSteps = 200 + rand.nextInt(100);
       for(int x = 0; x < learnSteps; x++)
-        brain.step();
-      
-//      brain.clearTransmitters();
-    }
-    
-    return (double)numCorrect / iterations;
+        stepBrain();
+    } catch (InterruptedException e) {}
+  }
+  
+  void stepBrain() throws InterruptedException {
+    brain.step();
+    br.visualize();
+    Thread.sleep(500);
   }
 }
