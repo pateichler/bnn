@@ -1,3 +1,5 @@
+package com.pat_eichler;
+
 import java.util.Random;
 
 public class SimpleRunner extends BrainRunner {
@@ -46,7 +48,7 @@ public class SimpleRunner extends BrainRunner {
           if(state) {
             correct = (o == n);
             
-            // Brain choose wrong ... break answer retrieval loop
+            // com.pat_eichler.Brain choose wrong ... break answer retrieval loop
             if(correct == false)
               break outerloop;
           }

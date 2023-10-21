@@ -1,6 +1,8 @@
+package com.pat_eichler;
+
 import java.util.Random;
 
-// TODO: eliminate this class and maker BrainRunner base class have the ability to visualize
+// TODO: eliminate this class and maker com.pat_eichler.BrainRunner base class have the ability to visualize
 public class SimpleRunnerVisualizer {
 
   private Random rand;
@@ -33,7 +35,7 @@ public class SimpleRunnerVisualizer {
           if(state) {
             correct = (o == n);
             
-            // Brain choose wrong ... break answer retrieval loop
+            // com.pat_eichler.Brain choose wrong ... break answer retrieval loop
             if(correct == false)
               break outerloop;
           }

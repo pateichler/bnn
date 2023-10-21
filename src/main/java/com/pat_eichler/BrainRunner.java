@@ -1,3 +1,5 @@
+package com.pat_eichler;
+
 import java.util.concurrent.Callable;
 
 public abstract class BrainRunner implements Callable<Double> {

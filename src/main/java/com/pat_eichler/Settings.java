@@ -1,3 +1,4 @@
+package com.pat_eichler;
 
 public class Settings {
   public static Settings Instance;
@@ -19,21 +20,21 @@ public class Settings {
   public int NT_COUNT_INH;
   public int NT_COUNT_MOD;
   
-  // World
+  // com.pat_eichler.World
   public int POP_SIZE;
   public int NUM_GENS;
   public int TOURN_SIZE;
   public String BRAIN_RUNNER;
   
-  // Brain
+  // com.pat_eichler.Brain
   public int NEURON_COUNT;
   public int CONN_COUNT;
   public String CONN_CONFIG;
   
-  // Neuron
+  // com.pat_eichler.Neuron
   public int TRIGGER_COOLDOWN;
   
-  // Connection
+  // com.pat_eichler.Connection
   public int NT_THRESHOLD;
   public int CONN_ADJUST_INC;
   public boolean UNSYNC_CONN_ADJUST;
@@ -41,7 +42,7 @@ public class Settings {
   public boolean RANDOMIZE_CONN_STRENGTH;
   public int MAX_CONN_STRENGTH;
   
-  // Genetics
+  // com.pat_eichler.Genetics
   public int[] STRENGTH_NET_IN_LAYERS;
   public int[] TYPE_NET_IN_LAYERS;
   public double MUTATION_RATE;

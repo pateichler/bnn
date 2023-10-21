@@ -1,3 +1,5 @@
+package com.pat_eichler;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -111,7 +113,7 @@ public class World {
     }
     
     
-//    BrainRunner br = Settings.Instance.getRunner();
+//    com.pat_eichler.BrainRunner br = com.pat_eichler.Settings.Instance.getRunner();
 //    for(int i = 0; i < brains.length; i ++)
 //      brainFitness[i] = br.runBrain(brains[i]);
   }

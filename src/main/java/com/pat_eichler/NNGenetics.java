@@ -1,3 +1,5 @@
+package com.pat_eichler;
+
 import java.io.Serializable;
 
 public class NNGenetics extends Genetics implements Serializable{

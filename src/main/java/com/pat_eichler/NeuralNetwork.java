@@ -1,4 +1,4 @@
-// Implemented from https://github.com/SebLague/Neural-Network-Experiments
+package com.pat_eichler;// Implemented from https://github.com/SebLague/Neural-Network-Experiments
 
 import java.io.Serializable;
 import java.util.Random;

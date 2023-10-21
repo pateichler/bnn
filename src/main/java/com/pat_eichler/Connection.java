@@ -1,3 +1,4 @@
+package com.pat_eichler;
 
 public class Connection {
   
@@ -55,6 +56,6 @@ public class Connection {
   }
   
   public String toString() {
-    return "Connection strength: " + strength + ", type: " + ntType; 
+    return "com.pat_eichler.Connection strength: " + strength + ", type: " + ntType;
   }
 }

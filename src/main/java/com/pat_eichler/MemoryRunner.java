@@ -1,3 +1,5 @@
+package com.pat_eichler;
+
 import java.util.Random;
 
 public class MemoryRunner extends BrainRunner {
@@ -18,8 +20,8 @@ public class MemoryRunner extends BrainRunner {
     
     learn(teachIterations);
     
-//    System.out.println("Connection status");
-//    for(Connection c : brain.neurons[10].connections)
+//    System.out.println("com.pat_eichler.Connection status");
+//    for(com.pat_eichler.Connection c : brain.neurons[10].connections)
 //      System.out.println(c);
     
 //    brain.printNumActive();

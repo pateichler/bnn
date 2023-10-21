@@ -1,3 +1,5 @@
+package com.pat_eichler;
+
 import java.util.Random;
 import java.util.LinkedList;
 
@@ -26,7 +28,7 @@ public class Brain {
   
   void createConnections() throws Exception {
     if(Settings.Instance.NEURON_COUNT <= Settings.Instance.CONN_COUNT)
-      throw new Exception("Neuron count must be greater to connection count");
+      throw new Exception("com.pat_eichler.Neuron count must be greater to connection count");
     
     switch(Settings.Instance.CONN_CONFIG) {
       case "neighbor": 
@@ -36,7 +38,7 @@ public class Brain {
         createRandomConnections();
         break;
        default:
-         throw new Exception("Connection configuration not found: " + Settings.Instance.CONN_CONFIG);
+         throw new Exception("com.pat_eichler.Connection configuration not found: " + Settings.Instance.CONN_CONFIG);
     }
   }
   

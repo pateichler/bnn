@@ -1,3 +1,5 @@
+package com.pat_eichler;
+
 import java.util.Random;
 
 public class Neuron {

@@ -1,3 +1,4 @@
+package com.pat_eichler;
 
 public class FixedGenetics extends Genetics{
 

@@ -1,3 +1,5 @@
+package com.pat_eichler;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
@@ -14,11 +16,11 @@ public class Runner {
   public static void main(String[] args) {
 //    System.out.println(Runtime.getRuntime().availableProcessors());
 
-//    Runner r = new Runner();
+//    com.pat_eichler.Runner r = new com.pat_eichler.Runner();
 //    r.loadGlobalSettings();
-//    r.visualizeBrain(new FixedGenetics());
+//    r.visualizeBrain(new com.pat_eichler.FixedGenetics());
     
-//    Runner r = new Runner();
+//    com.pat_eichler.Runner r = new com.pat_eichler.Runner();
 //    r.visualizeBestBrain(48);
     
     Runner r = new Runner();
@@ -89,7 +91,7 @@ public class Runner {
     System.out.println("Trained with fitness: " + fit);
     
     SimpleRunnerVisualizer v = new SimpleRunnerVisualizer(b);
-    System.out.println("Brain in last state:");
+    System.out.println("com.pat_eichler.Brain in last state:");
     v.br.visualize();
 
     System.out.println("====================");
