@@ -10,9 +10,6 @@ public class BrainSettings implements AutoCloseable {
   public ConnectionSettings connectionSettings;
   public GeneticSettings geneticSettings;
 
-  //TODO: Remove
-  public Double MUTATION_RATE;
-
   public Integer NEURON_COUNT;
   public String CONN_CONFIG;
 
