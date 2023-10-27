@@ -2,19 +2,19 @@ package com.pat_eichler.bnn.brain;
 
 public class Connection {
   
-  private Genetics dna;
+  private GeneticsModel genetics;
   private Neuron startNeuron;
   private Neuron endNeuron;
   
   private int strength;
   private int ntType;
   
-  public Connection(Genetics dna, Neuron startNeuron, Neuron endNeuron) {
-    this(dna, startNeuron, endNeuron, 0, 0);
+  public Connection(GeneticsModel genetics, Neuron startNeuron, Neuron endNeuron) {
+    this(genetics, startNeuron, endNeuron, 0, 0);
   }
 
-  public Connection(Genetics dna, Neuron startNeuron, Neuron endNeuron, int strength, int ntType) {
-    this.dna = dna;
+  public Connection(GeneticsModel genetics, Neuron startNeuron, Neuron endNeuron, int strength, int ntType) {
+    this.genetics = genetics;
     this.startNeuron = startNeuron;
     this.endNeuron = endNeuron;
     this.strength = strength;
@@ -40,11 +40,11 @@ public class Connection {
     for(int i = 0; i < startNeuron.neuroCountSegment.length; i++)
       input[i + startNeuron.neuroCountSegment.length] = Math.min(endNeuron.neuroCountSegment[i] / norm, 1.0);
     
-    strength += dna.getStrengthChange(input);
+    strength += genetics.getStrengthChange(input);
     strength = Math.min(BrainSettings.getInstance().connectionSettings.MAX_CONN_STRENGTH, Math.max(0, strength));
     
     if(prevStrength == 0 && strength > 0)
-      ntType = dna.getNTChange(input);
+      ntType = genetics.getNTChange(input);
   }
   
   public int getStrength() {

@@ -134,7 +134,7 @@ public class Brain {
       t = rand.nextInt(BrainSettings.getInstance().ntSettings.totalNTCount());
     }
     
-    return new Connection(dna, neurons[n1], neurons[n2], s, t);
+    return new Connection((GeneticsModel)dna, neurons[n1], neurons[n2], s, t);
   }
   
   public void clearTransmitters() {
