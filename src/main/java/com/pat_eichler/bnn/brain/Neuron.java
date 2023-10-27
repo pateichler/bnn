@@ -1,5 +1,6 @@
-package com.pat_eichler;
+package com.pat_eichler.bnn.brain;
 
+import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.Random;
 
 public class Neuron {
@@ -16,16 +17,16 @@ public class Neuron {
   private int coolDown = 0;
   
   public Neuron() {
-    int t = Settings.Instance.totalNTCount();
+    int t = BrainSettings.getInstance().ntSettings.totalNTCount();
     
     neuroCountSegment = new int[t];
     
-    if(Settings.Instance.UNSYNC_CONN_ADJUST)
-      curStep = new Random().nextInt(Settings.Instance.CONN_ADJUST_INC);
+    if(BrainSettings.getInstance().connectionSettings.UNSYNC_CONN_ADJUST)
+      curStep = new Random().nextInt(BrainSettings.getInstance().connectionSettings.CONN_ADJUST_INC);
   }
   
   public void addNT(int count, int ntType) {
-    NTAction action = Settings.Instance.getNTAction(ntType);
+    NTAction action = BrainSettings.getInstance().ntSettings.getNTAction(ntType);
     
     if(action == NTAction.EXCITATORY)
       neuroCount += count;
@@ -43,18 +44,18 @@ public class Neuron {
     if(active == false || coolDown > 0)
       return;
     
-    coolDown = Settings.Instance.TRIGGER_COOLDOWN;
+    coolDown = BrainSettings.getInstance().neuronSettings.TRIGGER_COOLDOWN;
     
     for(Connection c : connections)
       c.trigger();
   }
   
   public void postStep() {
-    active = neuroCount > Settings.Instance.NT_THRESHOLD;
+    active = neuroCount > BrainSettings.getInstance().connectionSettings.NT_THRESHOLD;
     neuroCount = 0;
     
     curStep++;
-    if(curStep >= Settings.Instance.CONN_ADJUST_INC) {
+    if(curStep >= BrainSettings.getInstance().connectionSettings.CONN_ADJUST_INC) {
       curStep = 0;
       this.adjustConnections();
     }

@@ -1,4 +1,6 @@
-package com.pat_eichler;
+package com.pat_eichler.bnn.brain.runner;
+
+import com.pat_eichler.bnn.brain.Brain;
 
 import java.util.concurrent.Callable;
 

@@ -1,4 +1,4 @@
-package com.pat_eichler;// Implemented from https://github.com/SebLague/Neural-Network-Experiments
+package com.pat_eichler.bnn.brain;// Implemented from https://github.com/SebLague/Neural-Network-Experiments
 
 import java.io.Serializable;
 import java.util.Random;
@@ -9,16 +9,16 @@ public class NeuralNetwork implements Serializable {
   
   private NNLayer[] layers;
   
-  public NeuralNetwork(int[] layerSizes) {
+  public NeuralNetwork(int[] layerSizes, double mutationRate) {
     Random rand = new Random(); 
     
     layers = new NNLayer[layerSizes.length - 1];
     
     for(int i = 0; i < layers.length; i++)
-      layers[i] = new NNLayer(layerSizes[i], layerSizes[i + 1], rand);
+      layers[i] = new NNLayer(layerSizes[i], layerSizes[i + 1], rand, mutationRate);
   }
   
-  public NeuralNetwork(NeuralNetwork parent1, NeuralNetwork parent2, double parent1Ratio) throws Exception {
+  public NeuralNetwork(NeuralNetwork parent1, NeuralNetwork parent2, double parent1Ratio, double mutationRate) throws Exception {
     if(parent1.layers.length != parent2.layers.length)
       throw new Exception("Number of layers between neural networks don't match: " +
           parent1.layers.length + " and " + parent2.layers.length);
@@ -28,7 +28,7 @@ public class NeuralNetwork implements Serializable {
     layers = new NNLayer[parent1.layers.length];
     
     for(int i = 0; i < layers.length; i++)
-      layers[i] = new NNLayer(parent1.layers[i], parent2.layers[i], parent1Ratio, rand);
+      layers[i] = new NNLayer(parent1.layers[i], parent2.layers[i], parent1Ratio, rand, mutationRate);
   }
   
   public int predict(double[] inputs)

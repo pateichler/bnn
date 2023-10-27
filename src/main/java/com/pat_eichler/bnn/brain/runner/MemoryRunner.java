@@ -1,4 +1,7 @@
-package com.pat_eichler;
+package com.pat_eichler.bnn.brain.runner;
+
+import com.pat_eichler.bnn.brain.Brain;
+import com.pat_eichler.bnn.brain.BrainSettings;
 
 import java.util.Random;
 
@@ -62,7 +65,7 @@ public class MemoryRunner extends BrainRunner {
 //        System.out.println("ACTIVE 2");
       
       if(correct == false)
-        brain.neurons[brain.neurons.length - 1 - n].addNT(1 << 10, Settings.Instance.totalNTCount() - 1);
+        brain.neurons[brain.neurons.length - 1 - n].addNT(1 << 10, BrainSettings.getInstance().ntSettings.totalNTCount() - 1);
       else {
         numCorrect++;
 //        System.out.println("Correct!!!");

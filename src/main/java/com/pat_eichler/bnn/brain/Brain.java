@@ -1,24 +1,55 @@
-package com.pat_eichler;
+package com.pat_eichler.bnn.brain;
 
 import java.util.Random;
 import java.util.LinkedList;
 
 public class Brain {
-  public Genetics dna;
+  public final BrainSettings settings;
+  public final Genetics dna;
   public Neuron[] neurons;
   
   private Random rand;
-  
-  
-  
-  public Brain(Genetics dna) {
+
+  public Brain(){
+    this((Genetics) null);
+  }
+
+  public Brain(Genetics dna){
+    if(BrainSettings.hasInstance()){
+      settings = null;
+      this.dna = dna == null ? new NNGenetics() : dna;
+      init();
+    }else{
+      //  TODO: Create brain with default config
+      System.out.println("Loading default settings");
+      settings = new BrainSettings();
+      try(BrainSettings o = BrainSettings.getInstance().setContext()){
+        this.dna = dna == null ? new NNGenetics() : dna;
+        init();
+      }
+    }
+  }
+  public Brain(BrainSettings settings){
+    this(null, settings);
+  }
+
+  public Brain(Genetics dna, BrainSettings settings) {
+    this.settings = settings;
+
+    try(BrainSettings o = BrainSettings.getInstance().setContext()){
+      this.dna = dna == null ? new NNGenetics() : dna;
+      init();
+    }
+  }
+
+  private void init(){
     rand = new Random();
-    neurons = new Neuron[Settings.Instance.NEURON_COUNT];
-    this.dna = dna;
-    
+    neurons = new Neuron[BrainSettings.getInstance().NEURON_COUNT];
+
+
     for(int i = 0; i < neurons.length; i ++)
       neurons[i] = new Neuron();
-    
+
     try {
       createConnections();
     } catch (Exception e) {
@@ -27,10 +58,10 @@ public class Brain {
   }
   
   void createConnections() throws Exception {
-    if(Settings.Instance.NEURON_COUNT <= Settings.Instance.CONN_COUNT)
+    if(BrainSettings.getInstance().NEURON_COUNT <= BrainSettings.getInstance().connectionSettings.CONN_COUNT)
       throw new Exception("com.pat_eichler.Neuron count must be greater to connection count");
     
-    switch(Settings.Instance.CONN_CONFIG) {
+    switch(BrainSettings.getInstance().CONN_CONFIG) {
       case "neighbor": 
         createNeighborConnections();
         break;
@@ -38,21 +69,30 @@ public class Brain {
         createRandomConnections();
         break;
        default:
-         throw new Exception("com.pat_eichler.Connection configuration not found: " + Settings.Instance.CONN_CONFIG);
+         throw new Exception("com.pat_eichler.Connection configuration not found: " + BrainSettings.getInstance().CONN_CONFIG);
     }
   }
   
   public void step() {
+    if(settings != null){
+      try(BrainSettings o = BrainSettings.getInstance().setContext()){
+        stepBrain();
+      }
+    }else
+      stepBrain();
+  }
+
+  private void stepBrain(){
     for(Neuron n : neurons)
       n.step();
-    
+
     for(Neuron n : neurons)
       n.postStep();
   }
   
   void createNeighborConnections() {
     for(int n = 0; n < neurons.length; n++) {
-      Connection[] connections = new Connection[Settings.Instance.CONN_COUNT];
+      Connection[] connections = new Connection[BrainSettings.getInstance().connectionSettings.CONN_COUNT];
       
       for(int k = 0; k < connections.length; k++)
         connections[k] = createConnection(n, (n+k+1) % neurons.length);
@@ -65,7 +105,7 @@ public class Brain {
     for(int n = 0; n < neurons.length; n++) {
       LinkedList<Integer> sel = new LinkedList<Integer>();
       sel.add(n);
-      Connection[] connections = new Connection[Settings.Instance.CONN_COUNT];
+      Connection[] connections = new Connection[BrainSettings.getInstance().connectionSettings.CONN_COUNT];
       
       for(int k = 0; k < connections.length; k++) {
         int i = rand.nextInt(neurons.length - k - 1);
@@ -89,9 +129,9 @@ public class Brain {
   
   Connection createConnection(int n1, int n2) {
     int s = 0, t = 0;
-    if(Settings.Instance.RANDOMIZE_CONN_STRENGTH) {
-      s = rand.nextInt(Settings.Instance.MAX_CONN_STRENGTH/2);
-      t = rand.nextInt(Settings.Instance.totalNTCount());
+    if(BrainSettings.getInstance().connectionSettings.RANDOMIZE_CONN_STRENGTH) {
+      s = rand.nextInt(BrainSettings.getInstance().connectionSettings.MAX_CONN_STRENGTH/2);
+      t = rand.nextInt(BrainSettings.getInstance().ntSettings.totalNTCount());
     }
     
     return new Connection(dna, neurons[n1], neurons[n2], s, t);

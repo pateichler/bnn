@@ -1,29 +1,45 @@
-package com.pat_eichler;
+package com.pat_eichler.bnn.brain.runner;
+
+import com.pat_eichler.bnn.brain.Brain;
+import com.pat_eichler.bnn.brain.BrainSettings;
 
 import java.util.Random;
 
-// TODO: eliminate this class and maker com.pat_eichler.BrainRunner base class have the ability to visualize
-public class SimpleRunnerVisualizer {
+public class SimpleRunner extends BrainRunner {
 
   private Random rand;
-  private Brain brain;
-  public BrainVisualizer br;
   
+  int growthPeriod = 0;
   int teachIterations = 500;
+  int testIterations = 50;
   int numOptions = 4;
   
-  public SimpleRunnerVisualizer(Brain brain) {
+  public SimpleRunner(Brain brain) {
+    super(brain);
     rand = new Random();
-    this.brain = brain;
-    br = new BrainVisualizer(brain, numOptions, numOptions, 10, true);
   }
   
-  public void run() {
-    try {
+  public Double call() {
+    grow();
+    
+    learn(teachIterations);
+        
+    return learn(testIterations);
+  }
+  
+  void grow() {
+    for(int i = 0; i < growthPeriod; i++)
+      brain.step();
+  }
+  
+  double learn(int iterations) {
+    int numCorrect = 0;
+    
+    for(int i = 0; i < iterations; i++) {
       int n = (int)(rand.nextDouble() * numOptions);
       brain.neurons[n].addNT(1 << 10, 0);
       
-      stepBrain();
+      brain.step();
       
       boolean correct = false;
       
@@ -45,24 +61,24 @@ public class SimpleRunnerVisualizer {
         if(correct)
           break;
         
-        stepBrain();
+        brain.step();
       }
         
       
       if(correct == false)
-        brain.neurons[brain.neurons.length - numOptions + n].addNT(1 << 10, Settings.Instance.totalNTCount() - 1);
-      
-      System.out.println("Answered " + (correct ? "correct!" : "wrong"));
+        brain.neurons[brain.neurons.length - numOptions + n].addNT(1 << 10, BrainSettings.getInstance().ntSettings.totalNTCount() - 1);
+      else {
+        numCorrect++;
+        //Possibly do a reward neurotransmitter here
+      }
       
       int learnSteps = 200 + rand.nextInt(100);
       for(int x = 0; x < learnSteps; x++)
-        stepBrain();
-    } catch (InterruptedException e) {}
-  }
-  
-  void stepBrain() throws InterruptedException {
-    brain.step();
-    br.visualize();
-    Thread.sleep(500);
+        brain.step();
+      
+//      brain.clearTransmitters();
+    }
+    
+    return (double)numCorrect / iterations;
   }
 }

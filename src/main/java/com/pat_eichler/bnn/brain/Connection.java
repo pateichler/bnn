@@ -1,4 +1,4 @@
-package com.pat_eichler;
+package com.pat_eichler.bnn.brain;
 
 public class Connection {
   
@@ -9,7 +9,7 @@ public class Connection {
   private int strength;
   private int ntType;
   
-  public Connection(Genetics dna, Neuron startNeuron, Neuron endNeuron) {  
+  public Connection(Genetics dna, Neuron startNeuron, Neuron endNeuron) {
     this(dna, startNeuron, endNeuron, 0, 0);
   }
 
@@ -32,7 +32,7 @@ public class Connection {
   public void adjust() {
     int prevStrength = strength;
     double[] input = new double[startNeuron.neuroCountSegment.length * 2];
-    double norm = (1 << Settings.Instance.MAX_CONN_STRENGTH) * Settings.Instance.CONN_COUNT / 2;
+    double norm = (1 << BrainSettings.getInstance().connectionSettings.MAX_CONN_STRENGTH) * BrainSettings.getInstance().connectionSettings.CONN_COUNT / 2;
     
     for(int i = 0; i < startNeuron.neuroCountSegment.length; i++)
       input[i] = Math.min(startNeuron.neuroCountSegment[i] / norm, 1.0);
@@ -41,7 +41,7 @@ public class Connection {
       input[i + startNeuron.neuroCountSegment.length] = Math.min(endNeuron.neuroCountSegment[i] / norm, 1.0);
     
     strength += dna.getStrengthChange(input);
-    strength = Math.min(Settings.Instance.MAX_CONN_STRENGTH, Math.max(0, strength));
+    strength = Math.min(BrainSettings.getInstance().connectionSettings.MAX_CONN_STRENGTH, Math.max(0, strength));
     
     if(prevStrength == 0 && strength > 0)
       ntType = dna.getNTChange(input);

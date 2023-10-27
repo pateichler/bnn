@@ -1,4 +1,7 @@
-package com.pat_eichler;
+package com.pat_eichler.bnn.brain.visualizer;
+
+import com.pat_eichler.bnn.brain.Brain;
+import com.pat_eichler.bnn.brain.Neuron;
 
 public class BrainVisualizer {
   

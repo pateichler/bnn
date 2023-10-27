@@ -1,4 +1,4 @@
-package com.pat_eichler;// Implemented from https://github.com/SebLague/Neural-Network-Experiments
+package com.pat_eichler.bnn.brain;// Implemented from https://github.com/SebLague/Neural-Network-Experiments
 
 import java.io.Serializable;
 import java.util.Random;
@@ -12,11 +12,15 @@ public class NNLayer implements Serializable {
   
   public double[] weights;
   public double[] biases;
-  
-  public NNLayer(int numNodesIn, int numNodesOut, Random rand)
+
+  //TODO: Remove reference of mutation rate in nueral network
+  double mutationRate;
+
+  public NNLayer(int numNodesIn, int numNodesOut, Random rand, double mutationRate)
   {
     this.numNodesIn = numNodesIn;
     this.numNodesOut = numNodesOut;
+    this.mutationRate = mutationRate;
     
     weights = new double[numNodesIn * numNodesOut];
     biases = new double[numNodesOut];
@@ -30,7 +34,8 @@ public class NNLayer implements Serializable {
       biases[i] = rand.nextGaussian() / norm;
   }
   
-  public NNLayer(NNLayer parent1, NNLayer parent2, double parent1Ratio, Random rand) throws Exception {
+  public NNLayer(NNLayer parent1, NNLayer parent2, double parent1Ratio, Random rand, double mutationRate) throws Exception {
+    this.mutationRate = mutationRate;
     if(parent1.numNodesIn != parent2.numNodesIn)
       throw new Exception("Nodes in don't match between parents: " + 
           parent1.numNodesIn + " and " + parent2.numNodesIn);
@@ -50,13 +55,13 @@ public class NNLayer implements Serializable {
     createChild(parent1, parent2, parent1Ratio, rand);
   }
   
-  void createChildAttribute(double[] attr, double[] parent1, double[] parent2, Random rand) {
+  void createChildAttribute(double[] attr, double[] parent1, double[] parent2, Random rand, double genCombPrecision) {
     for(int i = 0; i < attr.length; i++) {
-      if (rand.nextDouble() < Settings.Instance.MUTATION_RATE) {
+      if (rand.nextDouble() < mutationRate) {
         attr[i] = rand.nextGaussian() / Math.sqrt(numNodesIn);
       }else {
         double diff = parent2[i] - parent1[i];
-        double offset = rand.nextGaussian() * Math.abs(diff) / Settings.Instance.GENE_COMB_PRECISION;
+        double offset = rand.nextGaussian() * Math.abs(diff) / genCombPrecision;
         attr[i] = parent1[i] + diff/2 + offset;
       }
     }
@@ -71,14 +76,14 @@ public class NNLayer implements Serializable {
       for (int nodeIn = 0; nodeIn < numNodesIn; nodeIn++) {
         int index = nodeOut * numNodesIn + nodeIn; 
         
-        if(rand.nextDouble() < Settings.Instance.MUTATION_RATE)
+        if(rand.nextDouble() < mutationRate)
           weights[index] = rand.nextGaussian() / Math.sqrt(numNodesIn);
         else
           weights[index] = isParent1 ? parent1.weights[index] : parent2.weights[index];
       }
       
       // Set bias
-      if(rand.nextDouble() < Settings.Instance.MUTATION_RATE)
+      if(rand.nextDouble() < mutationRate)
         biases[nodeOut] = rand.nextGaussian() / Math.sqrt(numNodesIn);
       else
         biases[nodeOut] = isParent1 ? parent1.biases[nodeOut] : parent2.biases[nodeOut];
