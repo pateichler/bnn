@@ -11,16 +11,16 @@ public class BrainSettings implements AutoCloseable {
   public GeneticSettings geneticSettings;
 
   //TODO: Remove
-  public double MUTATION_RATE;
+  public Double MUTATION_RATE;
 
-  public int NEURON_COUNT;
+  public Integer NEURON_COUNT;
   public String CONN_CONFIG;
 
   @ConfigClass
   public static class NTSettings{
-    public int NT_COUNT_EXC;
-    public int NT_COUNT_INH;
-    public int NT_COUNT_MOD;
+    public Integer NT_COUNT_EXC;
+    public Integer NT_COUNT_INH;
+    public Integer NT_COUNT_MOD;
 
     public int totalNTCount() {
       return NT_COUNT_EXC + NT_COUNT_INH + NT_COUNT_MOD;
@@ -39,29 +39,29 @@ public class BrainSettings implements AutoCloseable {
 
   @ConfigClass
   public static class NeuronSettings{
-    public int TRIGGER_COOLDOWN;
+    public Integer TRIGGER_COOLDOWN;
   }
 
   @ConfigClass
   public static class ConnectionSettings{
-    public int CONN_COUNT;
-    public int NT_THRESHOLD;
-    public int CONN_ADJUST_INC;
-    public boolean UNSYNC_CONN_ADJUST;
+    public Integer CONN_COUNT;
+    public Integer NT_THRESHOLD;
+    public Integer CONN_ADJUST_INC;
+    public Boolean UNSYNC_CONN_ADJUST;
 
-    public boolean RANDOMIZE_CONN_STRENGTH;
-    public int MAX_CONN_STRENGTH;
+    public Boolean RANDOMIZE_CONN_STRENGTH;
+    public Integer MAX_CONN_STRENGTH;
   }
 
   @ConfigClass
   public static class GeneticSettings{
-    public int[] STRENGTH_NET_IN_LAYERS;
-    public int[] TYPE_NET_IN_LAYERS;
+    public Integer[] STRENGTH_NET_IN_LAYERS;
+    public Integer[] TYPE_NET_IN_LAYERS;
   }
 
 
   private static BrainSettings _instance;
-  public static boolean hasInstance(){
+  public static Boolean hasInstance(){
     return _instance != null;
   }
   public static BrainSettings getInstance() {
