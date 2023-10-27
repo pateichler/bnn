@@ -5,26 +5,35 @@ import java.util.LinkedList;
 
 public class Brain {
   public final BrainSettings settings;
-  public final Genetics dna;
+  public final GeneticsModel genetics;
   public Neuron[] neurons;
   
-  private Random rand;
+  private final Random rand;
 
-  public Brain(){
-    this((Genetics) null);
+  //TODO: Probably want to have a class that manages current genetics
+  private GeneticsModel getGenetics(DNA dna){
+    if(dna == null)
+      return new ConwayGenetics(rand);
+
+    return new ConwayGenetics(dna);
   }
 
-  public Brain(Genetics dna){
+  public Brain(){
+    this((DNA) null);
+  }
+
+  public Brain(DNA dna){
+    rand = new Random();
     if(BrainSettings.hasInstance()){
       settings = null;
-      this.dna = dna == null ? new NNGenetics() : dna;
+      this.genetics = getGenetics(dna);
       init();
     }else{
       //  TODO: Create brain with default config
       System.out.println("Loading default settings");
       settings = new BrainSettings();
       try(BrainSettings o = BrainSettings.getInstance().setContext()){
-        this.dna = dna == null ? new NNGenetics() : dna;
+        this.genetics = getGenetics(dna);
         init();
       }
     }
@@ -33,19 +42,18 @@ public class Brain {
     this(null, settings);
   }
 
-  public Brain(Genetics dna, BrainSettings settings) {
+  public Brain(DNA dna, BrainSettings settings) {
+    rand = new Random();
     this.settings = settings;
 
     try(BrainSettings o = BrainSettings.getInstance().setContext()){
-      this.dna = dna == null ? new NNGenetics() : dna;
+      this.genetics = getGenetics(dna);
       init();
     }
   }
 
   private void init(){
-    rand = new Random();
     neurons = new Neuron[BrainSettings.getInstance().NEURON_COUNT];
-
 
     for(int i = 0; i < neurons.length; i ++)
       neurons[i] = new Neuron();
@@ -134,7 +142,7 @@ public class Brain {
       t = rand.nextInt(BrainSettings.getInstance().ntSettings.totalNTCount());
     }
     
-    return new Connection((GeneticsModel)dna, neurons[n1], neurons[n2], s, t);
+    return new Connection(genetics, neurons[n1], neurons[n2], s, t);
   }
   
   public void clearTransmitters() {
