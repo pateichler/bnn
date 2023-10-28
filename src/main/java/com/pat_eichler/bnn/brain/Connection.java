@@ -3,59 +3,48 @@ package com.pat_eichler.bnn.brain;
 public class Connection {
   
   private GeneticsModel genetics;
-  private Neuron startNeuron;
   private Neuron endNeuron;
   
   private int strength;
-  private int ntType;
-  
-  public Connection(GeneticsModel genetics, Neuron startNeuron, Neuron endNeuron) {
-    this(genetics, startNeuron, endNeuron, 0, 0);
-  }
+  private final byte ntType;
+  private final BrainSettings.ConnectionSettings connectionSettings;
 
-  public Connection(GeneticsModel genetics, Neuron startNeuron, Neuron endNeuron, int strength, int ntType) {
-    this.genetics = genetics;
-    this.startNeuron = startNeuron;
+
+  public Connection(Neuron endNeuron, byte neuroTransmitterType) {
     this.endNeuron = endNeuron;
-    this.strength = strength;
-    this.ntType = ntType;
+    this.strength = BrainSettings.getInstance().connectionSettings.START_CONNECTION_STRENGTH;
+    this.ntType = neuroTransmitterType;
+    connectionSettings = BrainSettings.getInstance().connectionSettings;
   }
   
-  public void trigger() {
+  public void trigger(Neuron startNeuron) {
     if(strength == 0)
       return;
     
     int count = 1 << (strength - 1);
-    endNeuron.addNT(count, ntType);
+    endNeuron.addNT(count, ntType, startNeuron.getState());
   }
   
-  public void adjust() {
-    int prevStrength = strength;
-    double[] input = new double[startNeuron.neuroCountSegment.length * 2];
-    double norm = (1 << BrainSettings.getInstance().connectionSettings.MAX_CONN_STRENGTH) * BrainSettings.getInstance().connectionSettings.CONN_COUNT / 2;
-    
-    for(int i = 0; i < startNeuron.neuroCountSegment.length; i++)
-      input[i] = Math.min(startNeuron.neuroCountSegment[i] / norm, 1.0);
-    
-    for(int i = 0; i < startNeuron.neuroCountSegment.length; i++)
-      input[i + startNeuron.neuroCountSegment.length] = Math.min(endNeuron.neuroCountSegment[i] / norm, 1.0);
-    
-    strength += genetics.getStrengthChange(input);
-    strength = Math.min(BrainSettings.getInstance().connectionSettings.MAX_CONN_STRENGTH, Math.max(0, strength));
-    
-    if(prevStrength == 0 && strength > 0)
-      ntType = genetics.getNTChange(input);
+  public void adjust(Neuron startNeuron, GeneticsModel genetics) {
+    if(genetics.getConnectionIncreaseStrength(startNeuron.getState(), endNeuron.getState(), ntType))
+      strength = Math.min(strength + connectionSettings.STRENGTH_INCREASE, connectionSettings.MAX_STRENGTH);
+    else
+      strength = strength << 1;
+
+    if(strength == 0)
+      startNeuron.removeConnection(this);
+
   }
   
   public int getStrength() {
     return strength;
   }
-  
-  public int getNtType() {
+
+  public int getNtType(){
     return ntType;
   }
   
   public String toString() {
-    return "com.pat_eichler.Connection strength: " + strength + ", type: " + ntType;
+    return "Strength: " + strength + ", type: " + ntType;
   }
 }

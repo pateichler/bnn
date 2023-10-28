@@ -3,6 +3,8 @@ package com.pat_eichler.bnn.brain;
 import com.pat_eichler.config.ConfigClass;
 import com.pat_eichler.config.processor.ProcessConfig;
 
+import java.security.PublicKey;
+
 @ConfigClass @ProcessConfig(defaultsFileName = "defaultSettings.json", infoFileName = "webConfigSettings.json")
 public class BrainSettings implements AutoCloseable {
   public NTSettings ntSettings;
@@ -37,6 +39,9 @@ public class BrainSettings implements AutoCloseable {
   @ConfigClass
   public static class NeuronSettings{
     public Integer TRIGGER_COOLDOWN;
+    public Integer MAX_CONNECTIONS;
+    public Integer STATE_UPDATE_PERIOD;
+    public Integer CONN_SEARCH_PERIOD;
   }
 
   @ConfigClass
@@ -46,8 +51,9 @@ public class BrainSettings implements AutoCloseable {
     public Integer CONN_ADJUST_INC;
     public Boolean UNSYNC_CONN_ADJUST;
 
-    public Boolean RANDOMIZE_CONN_STRENGTH;
-    public Integer MAX_CONN_STRENGTH;
+    public Integer START_CONNECTION_STRENGTH;
+    public Integer MAX_STRENGTH;
+    public Integer STRENGTH_INCREASE;
   }
 
   @ConfigClass

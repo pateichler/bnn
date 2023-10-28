@@ -7,7 +7,8 @@ public class Brain {
   public final BrainSettings settings;
   public final GeneticsModel genetics;
   public Neuron[] neurons;
-  
+  private int curNeuronStateUpdate;
+  private int curNeuronSearchUpdate;
   private final Random rand;
 
   //TODO: Probably want to have a class that manages current genetics
@@ -57,28 +58,6 @@ public class Brain {
 
     for(int i = 0; i < neurons.length; i ++)
       neurons[i] = new Neuron();
-
-    try {
-      createConnections();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-  
-  void createConnections() throws Exception {
-    if(BrainSettings.getInstance().NEURON_COUNT <= BrainSettings.getInstance().connectionSettings.CONN_COUNT)
-      throw new Exception("com.pat_eichler.Neuron count must be greater to connection count");
-    
-    switch(BrainSettings.getInstance().CONN_CONFIG) {
-      case "neighbor": 
-        createNeighborConnections();
-        break;
-      case "random":
-        createRandomConnections();
-        break;
-       default:
-         throw new Exception("com.pat_eichler.Connection configuration not found: " + BrainSettings.getInstance().CONN_CONFIG);
-    }
   }
   
   public void step() {
@@ -94,60 +73,25 @@ public class Brain {
     for(Neuron n : neurons)
       n.step();
 
-    for(Neuron n : neurons)
-      n.postStep();
-  }
-  
-  void createNeighborConnections() {
-    for(int n = 0; n < neurons.length; n++) {
-      Connection[] connections = new Connection[BrainSettings.getInstance().connectionSettings.CONN_COUNT];
-      
-      for(int k = 0; k < connections.length; k++)
-        connections[k] = createConnection(n, (n+k+1) % neurons.length);
-      
-      neurons[n].setConnections(connections);
+    //TODO: Double check if this works and also if it can be simplified
+    float f = (float) settings.neuronSettings.STATE_UPDATE_PERIOD / (neurons.length + 1);
+    int chunkSize = (int)((curNeuronStateUpdate+1) / f) - (int)(curNeuronStateUpdate / f);
+    float fC = (float) settings.neuronSettings.CONN_SEARCH_PERIOD / (chunkSize + 1);
+    for (int i = 0; i < neurons.length; i++) {
+      int c = (int) (i / f);
+      boolean updateState = c == curNeuronStateUpdate;
+      boolean searchConnections = false;
+      if(updateState)
+        searchConnections = (i - (int)(c * f) / fC) == curNeuronSearchUpdate;
+
+      neurons[i].postStep(updateState, searchConnections);
     }
-  }
-  
-  void createRandomConnections() {
-    for(int n = 0; n < neurons.length; n++) {
-      LinkedList<Integer> sel = new LinkedList<Integer>();
-      sel.add(n);
-      Connection[] connections = new Connection[BrainSettings.getInstance().connectionSettings.CONN_COUNT];
-      
-      for(int k = 0; k < connections.length; k++) {
-        int i = rand.nextInt(neurons.length - k - 1);
-        int sIndex = 0;
-        
-        for(int s : sel) {
-          if(i < s)
-            break;
-          
-          i ++;
-          sIndex ++;
-        }
-        
-        sel.add(sIndex, i);
-        connections[k] = createConnection(n, i);
-      }
-      
-      neurons[n].setConnections(connections);
+
+    curNeuronStateUpdate++;
+    if(curNeuronStateUpdate > settings.neuronSettings.STATE_UPDATE_PERIOD){
+      curNeuronStateUpdate = 0;
+      curNeuronSearchUpdate = (curNeuronSearchUpdate + 1) % settings.neuronSettings.CONN_SEARCH_PERIOD;
     }
-  }
-  
-  Connection createConnection(int n1, int n2) {
-    int s = 0, t = 0;
-    if(BrainSettings.getInstance().connectionSettings.RANDOMIZE_CONN_STRENGTH) {
-      s = rand.nextInt(BrainSettings.getInstance().connectionSettings.MAX_CONN_STRENGTH/2);
-      t = rand.nextInt(BrainSettings.getInstance().ntSettings.totalNTCount());
-    }
-    
-    return new Connection(genetics, neurons[n1], neurons[n2], s, t);
-  }
-  
-  public void clearTransmitters() {
-   for(Neuron n : neurons)
-     n.clearTransmitters();
   }
   
   public void printNumActive() {

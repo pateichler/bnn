@@ -13,6 +13,6 @@ public abstract class GeneticsModel extends Genetics{
     }
 
     public abstract byte getNeuronStateChange(byte[] preNeuronStateCounts, byte[] postNeuronStateCounts, byte curState);
-    public abstract boolean getConnectionIncreaseStrength(byte preNeuronState, byte postNeuronState);
+    public abstract boolean getConnectionIncreaseStrength(byte preNeuronState, byte postNeuronState, byte connectionType);
     public abstract byte getConnectionCreation(byte preNeuronState, byte postNeuronState);
 }

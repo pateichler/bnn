@@ -1,87 +1,80 @@
 package com.pat_eichler.bnn.brain;
 
 import java.nio.file.attribute.UserPrincipalLookupService;
+import java.util.Arrays;
 import java.util.Random;
 
 public class Neuron {
-  
+
+  private GeneticsModel genetics;
   private boolean active;
-   
+  private byte state;
+  private boolean stateChanged;
   private int neuroCount;
-  public int[] neuroCountSegment;
-  
-  //TODO: make back to private
-  public Connection[] connections;
-  
-  private int curStep = 0;
+  private int[] preNeuronStates;
+  public final Connection[] connections;
   private int coolDown = 0;
   
   public Neuron() {
-    int t = BrainSettings.getInstance().ntSettings.totalNTCount();
-    
-    neuroCountSegment = new int[t];
-    
-    if(BrainSettings.getInstance().connectionSettings.UNSYNC_CONN_ADJUST)
-      curStep = new Random().nextInt(BrainSettings.getInstance().connectionSettings.CONN_ADJUST_INC);
+    connections = new Connection[BrainSettings.getInstance().neuronSettings.MAX_CONNECTIONS];
   }
   
-  public void addNT(int count, int ntType) {
-    NTAction action = BrainSettings.getInstance().ntSettings.getNTAction(ntType);
-    
-    if(action == NTAction.EXCITATORY)
-      neuroCount += count;
-    
-    if(action == NTAction.INHIBITORY)
-      neuroCount -= count;
-    
-    neuroCountSegment[ntType] += count;
+  public void addNT(int count, int ntType, byte neuronState) {
+    neuroCount += count * ntType;
+    preNeuronStates[neuronState] += count;
   }
   
   public void step() {
     if(coolDown > 0)
       coolDown --;
     
-    if(active == false || coolDown > 0)
+    if(!active || coolDown > 0)
       return;
     
     coolDown = BrainSettings.getInstance().neuronSettings.TRIGGER_COOLDOWN;
     
     for(Connection c : connections)
-      c.trigger();
+      c.trigger(this);
   }
   
-  public void postStep() {
+  public void postStep(boolean updateState, boolean searchConnections) {
     active = neuroCount > BrainSettings.getInstance().connectionSettings.NT_THRESHOLD;
     neuroCount = 0;
-    
-    curStep++;
-    if(curStep >= BrainSettings.getInstance().connectionSettings.CONN_ADJUST_INC) {
-      curStep = 0;
-      this.adjustConnections();
+
+    if(updateState){
+      adjustState();
+      adjustConnections();
+
+      Arrays.fill(preNeuronStates, 0);
+    }
+
+    if (searchConnections){
+      this.searchConnections();
     }
   }
-  
+
+  void adjustState(){
+      //TODO: Complete
+      int[] postNeuronStates;
+  }
+
   void adjustConnections() {
     for(Connection c : connections)
-      c.adjust();
-    
-    // Reset segment count
-    for(int i = 0; i < neuroCountSegment.length; i ++)
-      neuroCountSegment[i] = 0;
+      c.adjust(this, genetics);
   }
-  
-  public void setConnections(Connection[] connections) {
-    this.connections = connections;
+
+  void searchConnections(){
+    //TODO: Complete
+  }
+
+  public void removeConnection(Connection connection){
+    //TODO: Complete
   }
   
   public boolean isActive() {
     return active;
   }
-  
-  public void clearTransmitters() {
-    active = false;
-    neuroCount = 0;
-    for(int i = 0; i < neuroCountSegment.length; i++)
-      neuroCountSegment[i] = 0;
+  public byte getState(){
+    return state;
   }
 }
