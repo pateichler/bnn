@@ -11,7 +11,7 @@ public class Brain {
   private final Random rand;
 
   //TODO: Probably want to have a class that manages current genetics
-  private GeneticsModel getGenetics(DNA dna){
+  private GeneticsModel getGeneticsModel(DNA dna){
     if(dna == null)
       return new ConwayGenetics(rand);
 
@@ -27,7 +27,7 @@ public class Brain {
     rand = new Random();
     if(BrainSettings.hasInstance()){
       settings = null;
-      this.genetics = getGenetics(dna);
+      this.genetics = getGeneticsModel(dna);
       this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
       init();
     }else{
@@ -35,7 +35,7 @@ public class Brain {
       System.out.println("Loading default settings");
       settings = new BrainSettings();
       try(BrainSettings o = BrainSettings.getInstance().setContext()){
-        this.genetics = getGenetics(dna);
+        this.genetics = getGeneticsModel(dna);
         this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
         init();
       }
@@ -50,7 +50,7 @@ public class Brain {
     this.settings = settings;
 
     try(BrainSettings o = BrainSettings.getInstance().setContext()){
-      this.genetics = getGenetics(dna);
+      this.genetics = getGeneticsModel(dna);
       this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
       init();
     }
@@ -60,7 +60,7 @@ public class Brain {
     neurons = new Neuron[BrainSettings.getInstance().NEURON_COUNT];
 
     for(int i = 0; i < neurons.length; i ++)
-      neurons[i] = new Neuron();
+      neurons[i] = new Neuron(this, genetics, rand);
   }
   
   public void step() {
@@ -81,7 +81,16 @@ public class Brain {
 
     clock.increment();
   }
-  
+
+  public Neuron[] getRandomNeurons(int numNeurons){
+    Neuron[] n = new Neuron[numNeurons];
+    //TODO: Could make better to avoid repeats
+    for (int i = 0; i < neurons.length; i++)
+      n[i] = neurons[rand.nextInt(neurons.length)];
+
+    return n;
+  }
+
   public void printNumActive() {
     int a = 0;
     for(Neuron n : neurons)

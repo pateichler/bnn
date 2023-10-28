@@ -38,10 +38,13 @@ public class BrainSettings implements AutoCloseable {
 
   @ConfigClass
   public static class NeuronSettings{
+    public Integer NUM_STATES;
     public Integer TRIGGER_COOLDOWN;
     public Integer MAX_CONNECTIONS;
+    public Integer MAX_BACK_REF_NEURONS;
     public Integer STATE_UPDATE_PERIOD;
     public Integer CONN_SEARCH_PERIOD;
+    public Integer CONN_SEARCH_SIZE;
   }
 
   @ConfigClass

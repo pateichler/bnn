@@ -3,7 +3,7 @@ package com.pat_eichler.bnn.brain;
 public class Connection {
   
   private GeneticsModel genetics;
-  private Neuron endNeuron;
+  public final Neuron endNeuron;
   
   private int strength;
   private final byte ntType;
@@ -20,9 +20,8 @@ public class Connection {
   public void trigger(Neuron startNeuron) {
     if(strength == 0)
       return;
-    
-    int count = 1 << (strength - 1);
-    endNeuron.addNT(count, ntType, startNeuron.getState());
+
+    endNeuron.addNT(getPhysicalStrength(), ntType, startNeuron.getState(), true);
   }
   
   public void adjust(Neuron startNeuron, GeneticsModel genetics) {
@@ -40,11 +39,15 @@ public class Connection {
     return strength;
   }
 
+  public short getPhysicalStrength(){
+    return (short)Integer.highestOneBit(strength);
+  }
+
   public int getNtType(){
     return ntType;
   }
   
   public String toString() {
-    return "Strength: " + strength + ", type: " + ntType;
+    return "Physical strength: " + getPhysicalStrength() + ", type: " + ntType;
   }
 }
