@@ -14,7 +14,16 @@ public class Neuron {
   private int[] preNeuronStates;
   public final Connection[] connections;
   private int coolDown = 0;
-  
+
+  public static class PostNeuronMode{
+    public boolean updateState;
+    public boolean searchConnections;
+    public PostNeuronMode(boolean updateState, boolean searchConnections){
+      this.updateState = updateState;
+      this.searchConnections = searchConnections;
+    }
+  }
+
   public Neuron() {
     connections = new Connection[BrainSettings.getInstance().neuronSettings.MAX_CONNECTIONS];
   }
@@ -37,18 +46,18 @@ public class Neuron {
       c.trigger(this);
   }
   
-  public void postStep(boolean updateState, boolean searchConnections) {
+  public void postStep(PostNeuronMode mode) {
     active = neuroCount > BrainSettings.getInstance().connectionSettings.NT_THRESHOLD;
     neuroCount = 0;
 
-    if(updateState){
+    if(mode.updateState){
       adjustState();
       adjustConnections();
 
       Arrays.fill(preNeuronStates, 0);
     }
 
-    if (searchConnections){
+    if (mode.searchConnections){
       this.searchConnections();
     }
   }

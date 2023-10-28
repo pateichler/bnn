@@ -7,8 +7,7 @@ public class Brain {
   public final BrainSettings settings;
   public final GeneticsModel genetics;
   public Neuron[] neurons;
-  private int curNeuronStateUpdate;
-  private int curNeuronSearchUpdate;
+  private final BrainClock clock;
   private final Random rand;
 
   //TODO: Probably want to have a class that manages current genetics
@@ -19,6 +18,7 @@ public class Brain {
     return new ConwayGenetics(dna);
   }
 
+  //TODO: Organize constructors better so less repeated code
   public Brain(){
     this((DNA) null);
   }
@@ -28,6 +28,7 @@ public class Brain {
     if(BrainSettings.hasInstance()){
       settings = null;
       this.genetics = getGenetics(dna);
+      this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
       init();
     }else{
       //  TODO: Create brain with default config
@@ -35,6 +36,7 @@ public class Brain {
       settings = new BrainSettings();
       try(BrainSettings o = BrainSettings.getInstance().setContext()){
         this.genetics = getGenetics(dna);
+        this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
         init();
       }
     }
@@ -49,6 +51,7 @@ public class Brain {
 
     try(BrainSettings o = BrainSettings.getInstance().setContext()){
       this.genetics = getGenetics(dna);
+      this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
       init();
     }
   }
@@ -73,25 +76,10 @@ public class Brain {
     for(Neuron n : neurons)
       n.step();
 
-    //TODO: Double check if this works and also if it can be simplified
-    float f = (float) settings.neuronSettings.STATE_UPDATE_PERIOD / (neurons.length + 1);
-    int chunkSize = (int)((curNeuronStateUpdate+1) / f) - (int)(curNeuronStateUpdate / f);
-    float fC = (float) settings.neuronSettings.CONN_SEARCH_PERIOD / (chunkSize + 1);
-    for (int i = 0; i < neurons.length; i++) {
-      int c = (int) (i / f);
-      boolean updateState = c == curNeuronStateUpdate;
-      boolean searchConnections = false;
-      if(updateState)
-        searchConnections = (i - (int)(c * f) / fC) == curNeuronSearchUpdate;
+    for (int i = 0; i < neurons.length; i++)
+      neurons[i].postStep(clock.getMode(i));
 
-      neurons[i].postStep(updateState, searchConnections);
-    }
-
-    curNeuronStateUpdate++;
-    if(curNeuronStateUpdate > settings.neuronSettings.STATE_UPDATE_PERIOD){
-      curNeuronStateUpdate = 0;
-      curNeuronSearchUpdate = (curNeuronSearchUpdate + 1) % settings.neuronSettings.CONN_SEARCH_PERIOD;
-    }
+    clock.increment();
   }
   
   public void printNumActive() {
