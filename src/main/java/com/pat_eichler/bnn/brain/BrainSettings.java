@@ -10,35 +10,50 @@ public class BrainSettings implements AutoCloseable {
   public ConnectionSettings connectionSettings;
   public GeneticSettings geneticSettings;
 
+  @ConfigProperty(defualtValue = "20", comment = "Number of neurons in the brain.")
   public Integer NEURON_COUNT;
 
   @ConfigClass
   public static class NeuronSettings{
+    @ConfigProperty(defualtValue = "10", comment = "Number of neuron states.")
     public Integer NUM_STATES;
+    @ConfigProperty(defualtValue = "1", comment = "Minimum wait time till neuron can fire again.")
     public Integer TRIGGER_COOL_DOWN;
+    @ConfigProperty(defualtValue = "20", comment = "Maximum number of outgoing connections a neuron can have. Neurons can have unlimited incoming connections.")
     public Integer MAX_CONNECTIONS;
+    @ConfigProperty(defualtValue = "3", comment = "Maximum number of back reference neurons. Back reference neurons are used in connection creation search algorithm.")
     public Integer MAX_BACK_REF_NEURONS;
+    @ConfigProperty(defualtValue = "5", comment = "Period of neuron state update (in steps).")
     public Integer STATE_UPDATE_PERIOD;
+    @ConfigProperty(defualtValue = "4", comment = "Period of the connection search update (in state updates). @important Period is based off of state update update period. " +
+            "The number of period steps is STATE_UPDATE_PERIOD * CONN_SEARCH_PERIOD")
     public Integer CONN_SEARCH_PERIOD;
+    @ConfigProperty(defualtValue = "5", comment = "Number of neuron candidates searched.")
     public Integer CONN_SEARCH_SIZE;
   }
 
   @ConfigClass
   public static class ConnectionSettings{
+    @ConfigProperty(defualtValue = "10", comment = "Threshold of neuron activation.")
     public Integer NT_THRESHOLD;
 
+    @ConfigProperty(defualtValue = "8", comment = "Start connection strength of connection.")
     public Integer START_CONNECTION_STRENGTH;
+    @ConfigProperty(defualtValue = "2048", comment = "Maximum connection strength.")
     public Integer MAX_STRENGTH;
+    @ConfigProperty(defualtValue = "32", comment = "Strength increase per connection strengthen update.")
     public Integer STRENGTH_INCREASE;
   }
 
   @ConfigClass
   public static class GeneticSettings{
-    @ConfigProperty(defualtValue = "4")
+    @ConfigProperty(defualtValue = "4", comment = "Number of bits per neural network weight.")
     public Integer NN_WEIGHT_BITS;
-    @ConfigProperty(defualtValue = "8")
+    @ConfigProperty(defualtValue = "8", comment = "Number of bits per neural network bias.")
     public Integer NN_BIASES_BITS;
+    @ConfigProperty(defualtValue = "3", comment = "Size of the middle layer of pre state neural network.")
     public Integer PRE_STATE_NN_INNER_LAYER;
+    @ConfigProperty(defualtValue = "2", comment = "Size of the middle layer of post state neural network.")
     public Integer POST_STATE_NN_INNER_LAYER;
 
     public static byte[][] CONN_CHANGE_TABLE= {
