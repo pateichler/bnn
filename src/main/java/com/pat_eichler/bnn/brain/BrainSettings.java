@@ -70,6 +70,19 @@ public class BrainSettings implements AutoCloseable {
     public Integer NN_BIASES_BITS;
     public Integer PRE_STATE_NN_INNER_LAYER;
     public Integer POST_STATE_NN_INNER_LAYER;
+
+    public static byte[][] CONN_CHANGE_TABLE= {
+            {0, 0, 0, 0},
+            {0, 1, 0, 0},
+            {0, 1, 1, 0},
+            {0, 1, 1, 1}
+    };
+    public static byte[][] CONN_CREATE_TABLE= {
+            {0, 0, 0, 0},
+            {0, 3, 0, 1},
+            {0, 0, 2, 0},
+            {0, 1, 0, 3}
+    };
     public Integer getMiddleLayerSize(){
       return PRE_STATE_NN_INNER_LAYER + POST_STATE_NN_INNER_LAYER;
     }

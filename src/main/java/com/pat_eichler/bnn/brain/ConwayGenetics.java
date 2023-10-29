@@ -3,10 +3,8 @@ package com.pat_eichler.bnn.brain;
 import java.util.Random;
 
 public class ConwayGenetics extends GeneticsModel{
-    DiscreteNNLayer preGlobalNN;
-    DiscreteNNLayer postGlobalNN;
-    DiscreteNNLayer[] stateNN;
-    byte[] outputBranchStates;
+    private ConwayNeuronGenetics neuronGenetics;
+    private ConwayConnectionGenetics connectionGenetics;
 
     public ConwayGenetics(Random random) {
         super(random);
@@ -23,40 +21,19 @@ public class ConwayGenetics extends GeneticsModel{
 
     private void parseDNA(){
         DNABuffer buffer = new DNABuffer(this.dna);
-        preGlobalNN.init(buffer);
-        postGlobalNN.init(buffer);
-        int stateBitSize = getStateBitSize();
-        for (int i = 0; i < stateNN.length; i++) {
-            stateNN[i].init(buffer);
-            //TODO: Remove hard code value
-            outputBranchStates[i*2] = (byte)buffer.getBits(stateBitSize);
-            outputBranchStates[i*2+1] = (byte)buffer.getBits(stateBitSize);
-        }
+        neuronGenetics.parseDNA(buffer);
+        connectionGenetics.parseDNA(buffer);
     }
 
     void init(){
-        BrainSettings settings = BrainSettings.getInstance();
-        preGlobalNN = new DiscreteNNLayer(settings.neuronSettings.NUM_STATES, settings.geneticSettings.PRE_STATE_NN_INNER_LAYER, DiscreteNNLayer.ActivationFunction.RELU);
-        postGlobalNN = new DiscreteNNLayer(settings.neuronSettings.NUM_STATES, settings.geneticSettings.POST_STATE_NN_INNER_LAYER, DiscreteNNLayer.ActivationFunction.RELU);
-
-        outputBranchStates = new byte[settings.neuronSettings.NUM_STATES * 2];
-        stateNN = new DiscreteNNLayer[settings.neuronSettings.NUM_STATES];
-        int middleLayer = settings.geneticSettings.getMiddleLayerSize();
-        for (int i = 0; i < stateNN.length; i++)
-            stateNN[i] = new DiscreteNNLayer(middleLayer, 1, DiscreteNNLayer.ActivationFunction.NONE);
+        neuronGenetics = new ConwayNeuronGenetics();
+        connectionGenetics = new ConwayConnectionGenetics();
     }
 
     public DNA getRandomDNA(Random random) {
         int numBits = 0;
-        numBits += preGlobalNN.getBitSize();
-        numBits += postGlobalNN.getBitSize();
-        int stateBitSize = getStateBitSize();
-
-        for (DiscreteNNLayer layer : stateNN){
-            numBits += layer.getBitSize();
-            // For each output state branch
-            numBits += outputBranchStates.length * stateBitSize;
-        }
+        numBits += neuronGenetics.getBitSize();
+        numBits += connectionGenetics.getBitSize();
 
         byte[] data = new byte[Math.ceilDiv(numBits, 8)];
         random.nextBytes(data);
@@ -65,47 +42,16 @@ public class ConwayGenetics extends GeneticsModel{
 
     @Override
     public byte getNeuronStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, byte curState) {
-        //TODO: Consider changing data to ints to avoid this copy
-        int[] preInput = new int[preNeuronStateCounts.length];
-        for (int i = 0; i < preInput.length; i++)
-            preInput[i] = preNeuronStateCounts[i];
-
-        int[] postInput = new int[postNeuronStateCounts.length];
-        for (int i = 0; i < preInput.length; i++)
-            postInput[i] = postNeuronStateCounts[i];
-
-        int[] middleInput = new int[BrainSettings.getInstance().geneticSettings.getMiddleLayerSize()];
-
-        int[] preOutput = preGlobalNN.calculateOutputs(preInput);
-        int[] postOutput = postGlobalNN.calculateOutputs(postInput);
-        for (int i = 0; i < middleInput.length; i++) {
-            if(i < preOutput.length)
-                middleInput[i] = preOutput[i];
-            else
-                middleInput[i] = postOutput[i - preOutput.length];
-        }
-
-        int val = stateNN[curState].calculateOutputs(middleInput)[0];
-        byte state = val > 0 ? outputBranchStates[curState * 2] : outputBranchStates[curState * 2 + 1];
-        //TODO: Probably want to handle this better
-        if(state > BrainSettings.getInstance().neuronSettings.NUM_STATES)
-            state = curState;
-
-        return state;
-    }
-
-    private int getStateBitSize(){
-        //TODO: Check if this is right
-        return Integer.highestOneBit(BrainSettings.getInstance().neuronSettings.NUM_STATES) + 1;
+        return neuronGenetics.getNeuronStateChange(preNeuronStateCounts, postNeuronStateCounts, curState);
     }
 
     @Override
     public boolean getConnectionIncreaseStrength(byte preNeuronState, byte postNeuronState, byte connectionType) {
-        return false;
+        return connectionGenetics.getConnectionIncreaseStrength(preNeuronState, postNeuronState, connectionType);
     }
 
     @Override
     public byte getConnectionCreation(byte preNeuronState, byte postNeuronState) {
-        return 0;
+        return connectionGenetics.getConnectionCreation(preNeuronState, postNeuronState);
     }
 }
