@@ -27,8 +27,8 @@ public class TestBrainClock {
         int[] targetSearch = new int[numNeurons];
         Arrays.fill(targetSearch, numSearch);
 
-        System.out.println(Arrays.toString(neuronStateUpdate));
-        System.out.println(Arrays.toString(neuronSearchUpdate));
+        //System.out.println(Arrays.toString(neuronStateUpdate));
+        //System.out.println(Arrays.toString(neuronSearchUpdate));
 
         assertArrayEquals(targetState, neuronStateUpdate, "State period not correct");
         assertArrayEquals(targetSearch, neuronSearchUpdate, "Search period not correct");
