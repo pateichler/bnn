@@ -1,5 +1,7 @@
 package com.pat_eichler.bnn.brain;
 
+import javax.swing.plaf.synth.SynthTextAreaUI;
+
 public class BrainClock {
     private int curNeuronStateUpdate;
     private int curNeuronSearchUpdate;
@@ -14,28 +16,35 @@ public class BrainClock {
     public BrainClock(int numNeurons, int statePeriod, int searchPeriod){
         this.statePeriod = statePeriod;
         this.searchPeriod = searchPeriod;
-        this.stateFreq = (float) statePeriod / (numNeurons + 1);
+        this.stateFreq = (float) statePeriod / (numNeurons);
+        updateSearchFreq();
     }
 
     public Neuron.PostNeuronMode getMode(int i){
-        //TODO: Double check if this works and also if it can be simplified
-        int c = (int) (i / stateFreq);
+        int c = (int) (i * stateFreq);
         boolean updateState = c == curNeuronStateUpdate;
         boolean searchConnections = false;
-        if(updateState)
-            searchConnections = (i - (int)(c * stateFreq) / searchFreq) == curNeuronSearchUpdate;
+        if(updateState){
+            int j = i - (int)(Math.ceil(c / stateFreq));
+            searchConnections = (int) (j * searchFreq) == curNeuronSearchUpdate;
+        }
+
 
         return new Neuron.PostNeuronMode(updateState, searchConnections);
     }
 
     public void increment(){
         curNeuronStateUpdate++;
-        if(curNeuronStateUpdate > statePeriod){
+        if(curNeuronStateUpdate >= statePeriod){
             curNeuronStateUpdate = 0;
             curNeuronSearchUpdate = (curNeuronSearchUpdate + 1) % searchPeriod;
         }
 
-        int chunkSize = (int)((curNeuronStateUpdate+1) / stateFreq) - (int)(curNeuronStateUpdate / stateFreq);
-        searchFreq = (float) searchPeriod / (chunkSize + 1);
+        updateSearchFreq();
+    }
+
+    void updateSearchFreq(){
+        int chunkSize = (int) (Math.ceil((curNeuronStateUpdate+1) / stateFreq) - Math.ceil(curNeuronStateUpdate / stateFreq));
+        searchFreq = (float) searchPeriod / (chunkSize);
     }
 }
