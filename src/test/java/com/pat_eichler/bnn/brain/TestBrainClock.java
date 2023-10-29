@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestBrainClock {
 
@@ -27,8 +26,8 @@ public class TestBrainClock {
         int[] targetSearch = new int[numNeurons];
         Arrays.fill(targetSearch, numSearch);
 
-        System.out.println(Arrays.toString(neuronStateUpdate));
-        System.out.println(Arrays.toString(neuronSearchUpdate));
+        //System.out.println(Arrays.toString(neuronStateUpdate));
+        //System.out.println(Arrays.toString(neuronSearchUpdate));
 
         assertArrayEquals(targetState, neuronStateUpdate, "State period not correct");
         assertArrayEquals(targetSearch, neuronSearchUpdate, "Search period not correct");
