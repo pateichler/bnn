@@ -52,7 +52,7 @@ public class Neuron {
     if(!active || coolDown > 0)
       return;
     
-    coolDown = BrainSettings.getInstance().neuronSettings.TRIGGER_COOLDOWN;
+    coolDown = BrainSettings.getInstance().neuronSettings.TRIGGER_COOL_DOWN;
     
     for(Connection c : connections)
       c.trigger(this);

@@ -63,7 +63,7 @@ public class BrainVisualizer {
   }
   
   void printNeuron(Neuron n) {
-    char nonActive = n.neuroCountSegment[0] > 0 ? 'Z' : 'X';
+    char nonActive = n.isActive() ? 'Z' : 'X';
     
     System.out.print(n.isActive() ? (ANSI_GREEN + "O" + ANSI_RESET) : nonActive);
   }

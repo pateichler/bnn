@@ -1,8 +1,6 @@
 package com.pat_eichler.bnn.brain.runner;
 
 import com.pat_eichler.bnn.brain.Brain;
-import com.pat_eichler.bnn.brain.NNGenetics;
-
 import java.lang.reflect.Constructor;
 
 public class RunnerLoader {

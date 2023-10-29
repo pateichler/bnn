@@ -4,43 +4,18 @@ import com.pat_eichler.config.ConfigClass;
 import com.pat_eichler.config.processor.ConfigProperty;
 import com.pat_eichler.config.processor.ProcessConfig;
 
-import java.security.PublicKey;
-
 @ConfigClass @ProcessConfig(defaultsFileName = "defaultSettings.json", infoFileName = "webConfigSettings.json")
 public class BrainSettings implements AutoCloseable {
-  public NTSettings ntSettings;
   public NeuronSettings neuronSettings;
   public ConnectionSettings connectionSettings;
   public GeneticSettings geneticSettings;
 
   public Integer NEURON_COUNT;
-  public String CONN_CONFIG;
-
-  @ConfigClass
-  public static class NTSettings{
-    public Integer NT_COUNT_EXC;
-    public Integer NT_COUNT_INH;
-    public Integer NT_COUNT_MOD;
-
-    public int totalNTCount() {
-      return NT_COUNT_EXC + NT_COUNT_INH + NT_COUNT_MOD;
-    }
-
-    public NTAction getNTAction(int ntType) {
-      if(ntType < NT_COUNT_EXC)
-        return NTAction.EXCITATORY;
-
-      if(ntType < NT_COUNT_EXC + NT_COUNT_INH)
-        return NTAction.INHIBITORY;
-
-      return NTAction.MODULATORY;
-    }
-  }
 
   @ConfigClass
   public static class NeuronSettings{
     public Integer NUM_STATES;
-    public Integer TRIGGER_COOLDOWN;
+    public Integer TRIGGER_COOL_DOWN;
     public Integer MAX_CONNECTIONS;
     public Integer MAX_BACK_REF_NEURONS;
     public Integer STATE_UPDATE_PERIOD;
@@ -50,10 +25,7 @@ public class BrainSettings implements AutoCloseable {
 
   @ConfigClass
   public static class ConnectionSettings{
-    public Integer CONN_COUNT;
     public Integer NT_THRESHOLD;
-    public Integer CONN_ADJUST_INC;
-    public Boolean UNSYNC_CONN_ADJUST;
 
     public Integer START_CONNECTION_STRENGTH;
     public Integer MAX_STRENGTH;
@@ -62,8 +34,6 @@ public class BrainSettings implements AutoCloseable {
 
   @ConfigClass
   public static class GeneticSettings{
-    public Integer[] STRENGTH_NET_IN_LAYERS;
-    public Integer[] TYPE_NET_IN_LAYERS;
     @ConfigProperty(defualtValue = "4")
     public Integer NN_WEIGHT_BITS;
     @ConfigProperty(defualtValue = "8")
