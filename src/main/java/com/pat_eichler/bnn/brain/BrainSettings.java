@@ -1,6 +1,7 @@
 package com.pat_eichler.bnn.brain;
 
 import com.pat_eichler.config.ConfigClass;
+import com.pat_eichler.config.processor.ConfigProperty;
 import com.pat_eichler.config.processor.ProcessConfig;
 
 import java.security.PublicKey;
@@ -63,6 +64,15 @@ public class BrainSettings implements AutoCloseable {
   public static class GeneticSettings{
     public Integer[] STRENGTH_NET_IN_LAYERS;
     public Integer[] TYPE_NET_IN_LAYERS;
+    @ConfigProperty(defualtValue = "4")
+    public Integer NN_WEIGHT_BITS;
+    @ConfigProperty(defualtValue = "8")
+    public Integer NN_BIASES_BITS;
+    public Integer PRE_STATE_NN_INNER_LAYER;
+    public Integer POST_STATE_NN_INNER_LAYER;
+    public Integer getMiddleLayerSize(){
+      return PRE_STATE_NN_INNER_LAYER + POST_STATE_NN_INNER_LAYER;
+    }
   }
 
 
