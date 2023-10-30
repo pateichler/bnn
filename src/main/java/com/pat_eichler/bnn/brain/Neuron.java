@@ -89,8 +89,8 @@ public class Neuron {
   }
 
   void adjustConnections() {
-    for(Connection c : connections)
-      c.adjust(this, genetics);
+    //TODO: Check if this correctly removes neuron
+    connections.removeIf(connection -> !connection.adjust(this, genetics));
   }
 
   public void addConnection(Neuron neuron, byte ntType){
@@ -101,9 +101,9 @@ public class Neuron {
     Connection c = new Connection(neuron, (byte)(ntType - 1));
     connections.add(c);
   }
-  public void removeConnection(Connection c){
-    connections.remove(c);
-  }
+//  public void removeConnection(Connection c){
+//    connections.remove(c);
+//  }
 
   short[] getPostStateNeurons(){
     short[] p = new short[BrainSettings.getInstance().neuronSettings.NUM_STATES];

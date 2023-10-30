@@ -65,7 +65,7 @@ public class ConwayNeuronGenetics {
         int val = stateNN[curState].calculateOutputs(getMiddleLayer(preNeuronStateCounts, postNeuronStateCounts))[0];
         byte state = val > 0 ? outputBranchStates[curState * 2] : outputBranchStates[curState * 2 + 1];
         //TODO: Probably want to handle this better
-        if(state > BrainSettings.getInstance().neuronSettings.NUM_STATES)
+        if(state >= BrainSettings.getInstance().neuronSettings.NUM_STATES)
             state = curState;
 
         return state;

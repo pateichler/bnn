@@ -85,7 +85,7 @@ public class Brain {
   public Neuron[] getRandomNeurons(int numNeurons){
     Neuron[] n = new Neuron[numNeurons];
     //TODO: Could make better to avoid repeats
-    for (int i = 0; i < neurons.length; i++)
+    for (int i = 0; i < numNeurons; i++)
       n[i] = neurons[rand.nextInt(neurons.length)];
 
     return n;

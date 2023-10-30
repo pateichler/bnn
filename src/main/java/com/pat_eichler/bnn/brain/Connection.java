@@ -24,15 +24,13 @@ public class Connection {
     endNeuron.addNT(getPhysicalStrength(), ntType, startNeuron.getState(), true);
   }
   
-  public void adjust(Neuron startNeuron, GeneticsModel genetics) {
+  public boolean adjust(Neuron startNeuron, GeneticsModel genetics) {
     if(genetics.getConnectionIncreaseStrength(startNeuron.getState(), endNeuron.getState(), ntType))
       setStrength(Math.min(strength + connectionSettings.STRENGTH_INCREASE, connectionSettings.MAX_STRENGTH));
     else
       setStrength(strength << 1);
 
-    if(strength <= 0)
-      startNeuron.removeConnection(this);
-
+    return strength > 0;
   }
   
   public int getStrength() {
