@@ -21,25 +21,26 @@ public class Connection {
   }
   
   public void trigger(Neuron startNeuron) {
-    if(strength == 0)
-      return;
-
     endNeuron.addNT(getPhysicalStrength(), ntType, startNeuron.getState(), true);
   }
   
   public void adjust(Neuron startNeuron, GeneticsModel genetics) {
     if(genetics.getConnectionIncreaseStrength(startNeuron.getState(), endNeuron.getState(), ntType))
-      strength = Math.min(strength + connectionSettings.STRENGTH_INCREASE, connectionSettings.MAX_STRENGTH);
+      setStrength(Math.min(strength + connectionSettings.STRENGTH_INCREASE, connectionSettings.MAX_STRENGTH));
     else
-      strength = strength << 1;
+      setStrength(strength << 1);
 
-    if(strength == 0)
+    if(strength <= 0)
       startNeuron.removeConnection(this);
 
   }
   
   public int getStrength() {
     return strength;
+  }
+
+  void setStrength(int s){
+    strength = s;
   }
 
   public short getPhysicalStrength(){

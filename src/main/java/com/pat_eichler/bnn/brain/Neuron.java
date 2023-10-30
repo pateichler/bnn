@@ -11,7 +11,7 @@ public class Neuron {
   private byte state;
   private boolean stateChanged;
   private boolean receivedInput;
-  private int neuroCount;
+  private int activationCount;
   private final short[] preNeuronStates;
   public final ArrayList<Connection> connections;
   public final ArrayList<Neuron> backRefNeurons;
@@ -37,9 +37,11 @@ public class Neuron {
     this.genetics = genetics;
     this.rand = rand;
   }
-  
+  //TODO: To test:
+  // Activation, cool down, getSearchNeurons
+
   public void addNT(short count, int ntType, byte neuronState, boolean fromNeuron) {
-    neuroCount += count * BrainSettings.getInstance().connectionSettings.NT_TYPE_NEURON_CHANGE[ntType];
+    activationCount += count * BrainSettings.getInstance().connectionSettings.NT_TYPE_NEURON_CHANGE[ntType];
     preNeuronStates[neuronState] += count;
     if(fromNeuron)
       receivedInput = true;
@@ -48,19 +50,21 @@ public class Neuron {
   public void step() {
     if(coolDown > 0)
       coolDown --;
-    
-    if(!active || coolDown > 0)
-      return;
-    
+
+    if (active && coolDown == 0)
+      triggerConnections();
+  }
+
+  void triggerConnections(){
     coolDown = BrainSettings.getInstance().neuronSettings.TRIGGER_COOL_DOWN;
-    
+
     for(Connection c : connections)
       c.trigger(this);
   }
   
   public void postStep(PostNeuronMode mode) {
-    active = neuroCount > BrainSettings.getInstance().connectionSettings.NT_THRESHOLD;
-    neuroCount = 0;
+    active = activationCount > BrainSettings.getInstance().connectionSettings.NT_THRESHOLD;
+    activationCount = 0;
 
     if(mode.updateState){
       adjustState();
@@ -80,7 +84,8 @@ public class Neuron {
       short[] postNeuronStates =  getPostStateNeurons();
       byte s = genetics.getNeuronStateChange(preNeuronStates, postNeuronStates, state);
       stateChanged = state != s;
-      state = s;
+      if(stateChanged)
+        setState(s);
   }
 
   void adjustConnections() {
@@ -89,6 +94,9 @@ public class Neuron {
   }
 
   public void addConnection(Neuron neuron, byte ntType){
+    if(connections.size() >= BrainSettings.getInstance().neuronSettings.MAX_CONNECTIONS)
+      throw new RuntimeException("Unable to add connection ... maximum connections reached");
+
     //TODO: Check if ntType is correctly set
     Connection c = new Connection(neuron, (byte)(ntType - 1));
     connections.add(c);
@@ -126,6 +134,7 @@ public class Neuron {
   }
 
   Neuron[] getSearchNeurons(){
+    //TODO: Method is not efficent ... it can return duplicate neurons
     if(!connections.isEmpty()){
       // We have a downstream neurons
       Neuron[] searchNeurons = new Neuron[BrainSettings.getInstance().neuronSettings.CONN_SEARCH_SIZE];
@@ -142,9 +151,6 @@ public class Neuron {
     }else{
       // We don't have any downstream neurons ... check to see if we should connect via backref neurons
       if(!backRefNeurons.isEmpty() || receivedInput){
-        if(backRefNeurons.isEmpty())
-          return new Neuron[0];
-
         return backRefNeurons.toArray(new Neuron[0]);
       }else{
         // We don't have any back ref neurons or have received any input, so we are probably a lonely neuron ... find
@@ -181,5 +187,14 @@ public class Neuron {
   }
   public byte getState(){
     return state;
+  }
+  void setState(byte state){
+    this.state = state;
+  }
+  public int getActivationCount(){
+    return activationCount;
+  }
+  public short getPreNeuronStateCount(int i){
+    return preNeuronStates[i];
   }
 }
