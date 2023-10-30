@@ -40,7 +40,7 @@ public class Connection {
   }
 
   public short getPhysicalStrength(){
-    return (short)Integer.highestOneBit(strength);
+    return (short)(Common.binlog(strength) + 1);
   }
 
   public int getNtType(){

@@ -8,14 +8,15 @@ public class ConwayNeuronGenetics {
 
     public ConwayNeuronGenetics(){
         BrainSettings settings = BrainSettings.getInstance();
-        preGlobalNN = new DiscreteNNLayer(settings.neuronSettings.NUM_STATES, settings.geneticSettings.PRE_STATE_NN_INNER_LAYER, DiscreteNNLayer.ActivationFunction.RELU);
-        postGlobalNN = new DiscreteNNLayer(settings.neuronSettings.NUM_STATES, settings.geneticSettings.POST_STATE_NN_INNER_LAYER, DiscreteNNLayer.ActivationFunction.RELU);
+        int weightBitSize = settings.geneticSettings.NN_WEIGHT_BITS, biasBitSize = settings.geneticSettings.NN_BIASES_BITS;
+        preGlobalNN = new DiscreteNNLayer(settings.neuronSettings.NUM_STATES, settings.geneticSettings.PRE_STATE_NN_INNER_LAYER, DiscreteNNLayer.ActivationFunction.RELU, weightBitSize, biasBitSize);
+        postGlobalNN = new DiscreteNNLayer(settings.neuronSettings.NUM_STATES, settings.geneticSettings.POST_STATE_NN_INNER_LAYER, DiscreteNNLayer.ActivationFunction.RELU, weightBitSize, biasBitSize);
 
         outputBranchStates = new byte[settings.neuronSettings.NUM_STATES * 2];
         stateNN = new DiscreteNNLayer[settings.neuronSettings.NUM_STATES];
         int middleLayer = settings.geneticSettings.getMiddleLayerSize();
         for (int i = 0; i < stateNN.length; i++)
-            stateNN[i] = new DiscreteNNLayer(middleLayer, 1, DiscreteNNLayer.ActivationFunction.NONE);
+            stateNN[i] = new DiscreteNNLayer(middleLayer, 1, DiscreteNNLayer.ActivationFunction.NONE, weightBitSize, biasBitSize);
     }
 
     public void parseDNA(DNABuffer buffer){
@@ -74,7 +75,6 @@ public class ConwayNeuronGenetics {
     }
 
     private int getStateBitSize(){
-        //TODO: Check if this is right
-        return Integer.highestOneBit(BrainSettings.getInstance().neuronSettings.NUM_STATES) + 1;
+        return Common.numBitsToEncode(BrainSettings.getInstance().neuronSettings.NUM_STATES);
     }
 }

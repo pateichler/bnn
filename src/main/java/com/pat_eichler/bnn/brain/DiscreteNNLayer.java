@@ -4,18 +4,20 @@ import java.nio.ByteBuffer;
 
 public class DiscreteNNLayer {
 
-    private final int numInputs, numOutputs;
+    private final int numInputs, numOutputs, weightBitSize, biasBitSize;
     private final int[] weights, biases;
     private final ActivationFunction activationFunction;
     public enum ActivationFunction{RELU, NONE}
 
-    public DiscreteNNLayer (int numInputs, int numOutputs, ActivationFunction func){
-        this(numInputs, numOutputs, func, new int[numInputs * numOutputs], new int[numOutputs]);
+    public DiscreteNNLayer (int numInputs, int numOutputs, ActivationFunction func, int weightBitSize, int biasBitSize){
+        this(numInputs, numOutputs, func, weightBitSize, biasBitSize, new int[numInputs * numOutputs], new int[numOutputs]);
     }
 
-    public DiscreteNNLayer (int numInputs, int numOutputs, ActivationFunction func, int[] weights, int[] biases){
+    public DiscreteNNLayer (int numInputs, int numOutputs, ActivationFunction func, int weightBitSize, int biasBitSize, int[] weights, int[] biases){
         this.numInputs = numInputs;
         this.numOutputs = numOutputs;
+        this.weightBitSize = weightBitSize;
+        this.biasBitSize = biasBitSize;
         this.activationFunction = func;
 
         this.weights = weights;
@@ -23,12 +25,11 @@ public class DiscreteNNLayer {
     }
 
     public void init(DNABuffer buffer){
-        BrainSettings.GeneticSettings settings = BrainSettings.getInstance().geneticSettings;
         for (int i = 0; i < weights.length; i++)
-            weights[i] = buffer.getGrayCodeBits(settings.NN_WEIGHT_BITS);
+            weights[i] = buffer.getGrayCodeBits(weightBitSize);
 
         for (int i = 0; i < biases.length; i++)
-            biases[i] = buffer.getGrayCodeBits(settings.NN_BIASES_BITS);
+            biases[i] = buffer.getGrayCodeBits(biasBitSize);
     }
 
     public int[] calculateOutputs(int[] inputs){
@@ -57,7 +58,6 @@ public class DiscreteNNLayer {
     }
 
     public int getBitSize(){
-        BrainSettings.GeneticSettings settings = BrainSettings.getInstance().geneticSettings;
-        return weights.length * settings.NN_WEIGHT_BITS + biases.length * settings.NN_BIASES_BITS;
+        return weights.length * weightBitSize + biases.length * biasBitSize;
     }
 }
