@@ -39,7 +39,7 @@ public class Neuron {
   }
   
   public void addNT(short count, int ntType, byte neuronState, boolean fromNeuron) {
-    neuroCount += count * ntType;
+    neuroCount += count * BrainSettings.getInstance().connectionSettings.NT_TYPE_NEURON_CHANGE[ntType];
     preNeuronStates[neuronState] += count;
     if(fromNeuron)
       receivedInput = true;
@@ -88,9 +88,9 @@ public class Neuron {
       c.adjust(this, genetics);
   }
 
-  public void addConnection(Neuron neuron, byte connType){
+  public void addConnection(Neuron neuron, byte ntType){
     //TODO: Check if ntType is correctly set
-    Connection c = new Connection(neuron, (byte)(connType - 2));
+    Connection c = new Connection(neuron, (byte)(ntType - 1));
     connections.add(c);
   }
   public void removeConnection(Connection c){
@@ -116,9 +116,9 @@ public class Neuron {
       if(newNeuron == null || hasConnection(newNeuron))
         continue;
 
-      byte connType = genetics.getConnectionCreation(state, newNeuron.state);
-      if(connType > 0) {
-        addConnection(newNeuron, connType);
+      byte ntType = genetics.getConnectionCreation(state, newNeuron.state);
+      if(ntType > 0) {
+        addConnection(newNeuron, ntType);
         if(connections.size() >= maxCount)
           return;
       }

@@ -24,4 +24,12 @@ public class Common {
 
         return binlog(x-1)+1;
     }
+    public static int[] combineArray(int[] a, int[] b){
+        int[] array = new int[a.length + b.length];
+
+        for (int i = 0; i < array.length; i++)
+            array[i] = i < a.length ? a[i] : b[i - a.length];
+
+        return array;
+    }
 }

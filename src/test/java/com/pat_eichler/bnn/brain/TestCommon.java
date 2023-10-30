@@ -20,4 +20,10 @@ public class TestCommon {
         Assertions.assertEquals(2, Common.numBitsToEncode(4));
         Assertions.assertEquals(1, Common.numBitsToEncode(1));
     }
+
+    @Test
+    void testCombineArray(){
+        int[] arr = Common.combineArray(new int[]{1,2,3,4}, new int[]{5,6,7});
+        Assertions.assertArrayEquals(new int[]{1,2,3,4,5,6,7}, arr);
+    }
 }

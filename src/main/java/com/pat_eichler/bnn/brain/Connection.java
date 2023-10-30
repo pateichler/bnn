@@ -10,10 +10,13 @@ public class Connection {
   private final BrainSettings.ConnectionSettings connectionSettings;
 
 
-  public Connection(Neuron endNeuron, byte neuroTransmitterType) {
+  public Connection(Neuron endNeuron, byte ntType) {
+    if(ntType > BrainSettings.getInstance().connectionSettings.NT_TYPE_NEURON_CHANGE.length)
+      throw new RuntimeException("Invalid NT type: " + ntType);
+
     this.endNeuron = endNeuron;
     this.strength = BrainSettings.getInstance().connectionSettings.START_CONNECTION_STRENGTH;
-    this.ntType = neuroTransmitterType;
+    this.ntType = ntType;
     connectionSettings = BrainSettings.getInstance().connectionSettings;
   }
   

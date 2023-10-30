@@ -46,8 +46,8 @@ public class ConwayGenetics extends GeneticsModel{
     }
 
     @Override
-    public boolean getConnectionIncreaseStrength(byte preNeuronState, byte postNeuronState, byte connectionType) {
-        return connectionGenetics.getConnectionIncreaseStrength(preNeuronState, postNeuronState, connectionType);
+    public boolean getConnectionIncreaseStrength(byte preNeuronState, byte postNeuronState, byte ntType) {
+        return connectionGenetics.getConnectionIncreaseStrength(preNeuronState, postNeuronState, ntType);
     }
 
     @Override

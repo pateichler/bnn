@@ -36,7 +36,8 @@ public class BrainSettings implements AutoCloseable {
   public static class ConnectionSettings{
     @ConfigProperty(defualtValue = "10", comment = "Threshold of neuron activation.")
     public Integer NT_THRESHOLD;
-
+    @ConfigProperty(defualtValue = "[-1,0,1]", comment = "Connection type neuron count change")
+    public Integer[] NT_TYPE_NEURON_CHANGE;
     @ConfigProperty(defualtValue = "8", comment = "Start connection strength of connection.")
     public Integer START_CONNECTION_STRENGTH;
     @ConfigProperty(defualtValue = "2048", comment = "Maximum connection strength.")

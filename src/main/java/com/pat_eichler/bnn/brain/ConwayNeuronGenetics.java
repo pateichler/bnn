@@ -36,15 +36,16 @@ public class ConwayNeuronGenetics {
         numBits += postGlobalNN.getBitSize();
         int stateBitSize = getStateBitSize();
 
-        for (DiscreteNNLayer layer : stateNN){
+        for (DiscreteNNLayer layer : stateNN)
             numBits += layer.getBitSize();
-            // For each output state branch
-            numBits += outputBranchStates.length * stateBitSize;
-        }
+
+        // For each output state branch
+        numBits += outputBranchStates.length * stateBitSize;
 
         return numBits;
     }
-    public byte getNeuronStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, byte curState) {
+
+    int[] getMiddleLayer(short[] preNeuronStateCounts, short[] postNeuronStateCounts){
         //TODO: Consider changing data to ints to avoid this copy
         int[] preInput = new int[preNeuronStateCounts.length];
         for (int i = 0; i < preInput.length; i++)
@@ -54,18 +55,14 @@ public class ConwayNeuronGenetics {
         for (int i = 0; i < preInput.length; i++)
             postInput[i] = postNeuronStateCounts[i];
 
-        int[] middleInput = new int[BrainSettings.getInstance().geneticSettings.getMiddleLayerSize()];
-
         int[] preOutput = preGlobalNN.calculateOutputs(preInput);
         int[] postOutput = postGlobalNN.calculateOutputs(postInput);
-        for (int i = 0; i < middleInput.length; i++) {
-            if(i < preOutput.length)
-                middleInput[i] = preOutput[i];
-            else
-                middleInput[i] = postOutput[i - preOutput.length];
-        }
 
-        int val = stateNN[curState].calculateOutputs(middleInput)[0];
+        return Common.combineArray(preOutput, postOutput);
+    }
+
+    public byte getNeuronStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, byte curState) {
+        int val = stateNN[curState].calculateOutputs(getMiddleLayer(preNeuronStateCounts, postNeuronStateCounts))[0];
         byte state = val > 0 ? outputBranchStates[curState * 2] : outputBranchStates[curState * 2 + 1];
         //TODO: Probably want to handle this better
         if(state > BrainSettings.getInstance().neuronSettings.NUM_STATES)

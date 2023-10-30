@@ -6,7 +6,7 @@ public class ConwayConnectionGenetics {
     private final CompressTable createTable;
 
     public ConwayConnectionGenetics(){
-        changeTables = new CompressTable[3];
+        changeTables = new CompressTable[BrainSettings.getInstance().connectionSettings.NT_TYPE_NEURON_CHANGE.length];
         for (int i = 0; i < changeTables.length; i++)
             changeTables[i] = new CompressTable(BrainSettings.GeneticSettings.CONN_CHANGE_TABLE, BrainSettings.getInstance().neuronSettings.NUM_STATES);
 
@@ -27,8 +27,8 @@ public class ConwayConnectionGenetics {
         return size + createTable.getBitSize();
     }
 
-    public boolean getConnectionIncreaseStrength(byte preNeuronState, byte postNeuronState, byte connectionType) {
-        return changeTables[connectionType+1].getTableEntry(preNeuronState, postNeuronState) == 1;
+    public boolean getConnectionIncreaseStrength(byte preNeuronState, byte postNeuronState, byte ntType) {
+        return changeTables[ntType].getTableEntry(preNeuronState, postNeuronState) == 1;
     }
 
     public byte getConnectionCreation(byte preNeuronState, byte postNeuronState) {
