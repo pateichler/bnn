@@ -24,7 +24,6 @@ public class ConwayNeuronGenetics {
         int stateBitSize = getStateBitSize();
         for (int i = 0; i < stateNN.length; i++) {
             stateNN[i].init(buffer);
-            //TODO: Remove hard code value
             outputBranchStates[i*2] = (byte)buffer.getBits(stateBitSize);
             outputBranchStates[i*2+1] = (byte)buffer.getBits(stateBitSize);
         }

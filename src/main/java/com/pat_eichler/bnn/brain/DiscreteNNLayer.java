@@ -10,13 +10,16 @@ public class DiscreteNNLayer {
     public enum ActivationFunction{RELU, NONE}
 
     public DiscreteNNLayer (int numInputs, int numOutputs, ActivationFunction func){
+        this(numInputs, numOutputs, func, new int[numInputs * numOutputs], new int[numOutputs]);
+    }
+
+    public DiscreteNNLayer (int numInputs, int numOutputs, ActivationFunction func, int[] weights, int[] biases){
         this.numInputs = numInputs;
         this.numOutputs = numOutputs;
-
-        weights = new int[numInputs * numOutputs];
-        biases = new int[numOutputs];
-
         this.activationFunction = func;
+
+        this.weights = weights;
+        this.biases = biases;
     }
 
     public void init(DNABuffer buffer){
