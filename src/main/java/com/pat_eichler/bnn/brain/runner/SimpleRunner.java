@@ -10,7 +10,7 @@ public class SimpleRunner extends BrainRunner {
     int growthPeriod = 0;
     int teachIterations = 500;
     int testIterations = 50;
-    int numOptions = 4;
+    int numOptions = 2;
 
     public SimpleRunner(Brain brain) {
         super(brain);
@@ -35,7 +35,7 @@ public class SimpleRunner extends BrainRunner {
 
         for(int i = 0; i < iterations; i++) {
             int n = (int)(rand.nextDouble() * numOptions);
-            brain.neurons[n].addNT((short)20, 1, (byte) 1, false);
+            brain.neurons[n].addNT((short)20, 2, (byte) 1, false);
 
             brain.step();
 

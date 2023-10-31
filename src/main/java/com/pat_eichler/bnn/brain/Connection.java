@@ -11,11 +11,15 @@ public class Connection {
 
 
   public Connection(Neuron endNeuron, byte ntType) {
+      this(endNeuron, ntType, BrainSettings.getInstance().connectionSettings.START_CONNECTION_STRENGTH);
+  }
+
+  public Connection(Neuron endNeuron, byte ntType, int initStrength){
     if(ntType > BrainSettings.getInstance().connectionSettings.NT_TYPE_NEURON_CHANGE.length)
       throw new RuntimeException("Invalid NT type: " + ntType);
 
     this.endNeuron = endNeuron;
-    this.strength = BrainSettings.getInstance().connectionSettings.START_CONNECTION_STRENGTH;
+    this.strength = initStrength;
     this.ntType = ntType;
     connectionSettings = BrainSettings.getInstance().connectionSettings;
   }
@@ -37,7 +41,8 @@ public class Connection {
     return strength;
   }
 
-  void setStrength(int s){
+  //TODO: Remove public
+  public void setStrength(int s){
     strength = s;
   }
 

@@ -1,6 +1,8 @@
 package com.pat_eichler.bnn.brain;
 
-public class DNA {
+import java.io.Serializable;
+
+public class DNA implements Serializable {
     public final byte[] data;
     public DNA(byte[] data){
         this.data = data;

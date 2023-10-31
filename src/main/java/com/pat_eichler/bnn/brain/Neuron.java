@@ -94,13 +94,15 @@ public class Neuron {
   }
 
   public void addConnection(Neuron neuron, byte ntType){
+    addConnection(new Connection(neuron, (byte)(ntType - 1)));
+  }
+  public void addConnection(Connection c){
     if(connections.size() >= BrainSettings.getInstance().neuronSettings.MAX_CONNECTIONS)
       throw new RuntimeException("Unable to add connection ... maximum connections reached");
 
-    //TODO: Check if ntType is correctly set
-    Connection c = new Connection(neuron, (byte)(ntType - 1));
     connections.add(c);
   }
+
 //  public void removeConnection(Connection c){
 //    connections.remove(c);
 //  }
