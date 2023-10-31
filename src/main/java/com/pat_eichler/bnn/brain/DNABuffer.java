@@ -16,12 +16,13 @@ public class DNABuffer {
         curByte = buffer.get();
     }
 
-    private byte trimByte(byte b, int startBit, int endBit){
+    private int trimByte(byte b, int startBit, int endBit){
+        // Convert byte to unsigned int
         int r = b & 0xFF;
         r = r >> (8 - endBit);
         if(startBit == 0)
-            return (byte)r;
-        return (byte)(r & leftBitMask[endBit - startBit]);
+            return r;
+        return r & leftBitMask[endBit - startBit];
     }
     public int getGrayCodeBits(int numBits){
         int val = getBits(numBits);
@@ -52,7 +53,7 @@ public class DNABuffer {
             if(lastByte)
                 throw new RuntimeException("DNA is out of data!");
 
-            val |= trimByte(curByte, curBitPos, 8);
+            val += trimByte(curByte, curBitPos, 8);
             numBits -= 8 - curBitPos;
             curBitPos = 0;
 
@@ -63,7 +64,8 @@ public class DNABuffer {
                 val = val << 8;
                 numBits -= 8;
                 retrieveNextByte();
-                val |= curByte;
+                // Add whole unsigned byte to return value
+                val += curByte & 0xFF;
             }
 
             retrieveNextByte();
@@ -71,7 +73,7 @@ public class DNABuffer {
                 return val;
 
             val = val << numBits;
-            val |= trimByte(curByte, 0, numBits);
+            val += trimByte(curByte, 0, numBits);
             curBitPos = numBits;
         }else{
             val |= trimByte(curByte, curBitPos, curBitPos + numBits);
