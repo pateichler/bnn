@@ -9,36 +9,38 @@ public class ConwayGenetics extends GeneticsModel{
     public ConwayGenetics(Random random) {
         super(random);
         init();
-        this.dna = getRandomDNA(random);
-        parseDNA();
+        parseDNA(new DNABuffer(random));
     }
 
     public ConwayGenetics(DNA dna){
         super(dna);
         init();
-        parseDNA();
+        parseDNA(new DNABuffer(this.dna));
     }
 
-    private void parseDNA(){
-        DNABuffer buffer = new DNABuffer(this.dna);
+    private void parseDNA(DNABuffer buffer){
         neuronGenetics.parseDNA(buffer);
         connectionGenetics.parseDNA(buffer);
+
+        if(this.dna == null)
+            this.dna = buffer.getNewDNA();
     }
 
     void init(){
+        //TODO: Init can be moved to constructor
         neuronGenetics = new ConwayNeuronGenetics();
         connectionGenetics = new ConwayConnectionGenetics();
     }
 
-    public DNA getRandomDNA(Random random) {
-        int numBits = 0;
-        numBits += neuronGenetics.getBitSize();
-        numBits += connectionGenetics.getBitSize();
-
-        byte[] data = new byte[Math.ceilDiv(numBits, 8)];
-        random.nextBytes(data);
-        return new DNA(data);
-    }
+//    public DNA getRandomDNA(Random random) {
+//        int numBits = 0;
+//        numBits += neuronGenetics.getBitSize();
+//        numBits += connectionGenetics.getBitSize();
+//
+//        byte[] data = new byte[Math.ceilDiv(numBits, 8)];
+//        random.nextBytes(data);
+//        return new DNA(data);
+//    }
 
     @Override
     public byte getNeuronStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, byte curState) {

@@ -1,15 +1,29 @@
 package com.pat_eichler.bnn.brain;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class DNABuffer {
     //Note: This class could probably be optimized
     private final ByteBuffer buffer;
+    ArrayList<Byte> newData;
+    ArrayList<Integer> segments;
+    Random random;
     byte curByte;
     int curBitPos;
     boolean lastByte;
 
     final int[] leftBitMask = new int[] {0,1,3,7,15,31,63,127,255};
+
+    public DNABuffer(Random random){
+        buffer = null;
+        newData = new ArrayList<>();
+        newData.add((byte) (random.nextInt(256) - 128));
+        segments = new ArrayList<>();
+        segments.add(0);
+        this.random = random;
+    }
 
     public DNABuffer(DNA dna){
         buffer = ByteBuffer.wrap(dna.data);
@@ -38,10 +52,24 @@ public class DNABuffer {
     }
 
     private void retrieveNextByte(){
-        if(buffer.hasRemaining())
-            curByte = buffer.get();
-        else
-            lastByte = true;
+        if(buffer == null){
+            curByte = (byte) (random.nextInt(256) - 128);
+            newData.add(curByte);
+        }
+        else {
+            if (buffer.hasRemaining())
+                curByte = buffer.get();
+            else
+                lastByte = true;
+        }
+    }
+
+    public void startSegment(){
+        if(buffer == null){
+            int s = curByte * 8 + curBitPos;
+            if(segments.getLast() != s)
+                segments.add(s);
+        }
     }
 
     public int getBits(int numBits){
@@ -81,6 +109,21 @@ public class DNABuffer {
         }
 
         return val;
+    }
+
+    public DNA getNewDNA(){
+        if(buffer != null)
+            throw new RuntimeException("New DNA not created");
+
+        byte[] data = new byte[newData.size()];
+        for (int i = 0; i < newData.size(); i++)
+            data[i] = (byte)newData.get(i);
+
+        int[] segs = new int[segments.size()];
+        for (int i = 0; i < segments.size(); i++)
+            segs[i] = (int)segments.get(i);
+
+        return new DNA(data, segs);
     }
 
 }

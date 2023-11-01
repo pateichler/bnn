@@ -15,7 +15,7 @@ public class TestDNABuffer {
         int[] dataSize = new int[]{7, 7, 3, 7, 4};
         int[] expectedData = new int[]{43, 87, 6, 123, 5};
 
-        DNABuffer buffer = new DNABuffer(new DNA(data));
+        DNABuffer buffer = new DNABuffer(new DNA(data, new int[0]));
         for (int i = 0; i < dataSize.length; i++) {
             assertEquals(expectedData[i], buffer.getBits(dataSize[i]), "DNA not correctly decoded");
         }
@@ -30,7 +30,7 @@ public class TestDNABuffer {
         int[] dataSize = new int[]{9, 15, 3, 5, 12, 3, 4, 2, 2, 2, 4, 5, 13, 6, 3, 4, 4};
         int[] expectedData = new int[]{350, 15177, 5, 1, 3463, 0, 11, 0, 1, 1, 9, 4, 879, 50, 3, 9, 12};
 
-        DNABuffer buffer = new DNABuffer(new DNA(data));
+        DNABuffer buffer = new DNABuffer(new DNA(data, new int[0]));
         int[] actualData= new int[expectedData.length];
         for (int i = 0; i < dataSize.length; i++)
             actualData[i] = buffer.getBits(dataSize[i]);
@@ -45,7 +45,7 @@ public class TestDNABuffer {
                 (byte)0xBB, (byte)0x45, (byte)0x77, (byte)0x32, (byte)0x94, (byte)0xF2, (byte)0xCB, (byte)0x36, (byte)0x40};
         int[] dataSize = new int[]{32, 9, 6, 7, 13, 7, 29, 7, 4, 3, 5, 6};
         int[] expectedData = new int[]{657604568, 464, 41, 79, 5594, 21, 463030905, 50, 12, 6, 25, 0};
-        DNABuffer buffer = new DNABuffer(new DNA(data));
+        DNABuffer buffer = new DNABuffer(new DNA(data, new int[0]));
         int[] actualData= new int[expectedData.length];
         for (int i = 0; i < dataSize.length; i++)
             actualData[i] = buffer.getBits(dataSize[i]);
@@ -62,7 +62,7 @@ public class TestDNABuffer {
         intBuffer.put(expectedData);
 
         byte[] data = byteBuffer.array();
-        DNABuffer buffer = new DNABuffer(new DNA(data));
+        DNABuffer buffer = new DNABuffer(new DNA(data, new int[0]));
         int[] actualData = new int[expectedData.length];
         for (int i = 0; i < actualData.length; i++)
             actualData[i] = buffer.getBits(32);
@@ -76,7 +76,7 @@ public class TestDNABuffer {
         int[] dataSize = new int[]{7, 7, 3, 7, 4};
         int[] expectedData = new int[]{50-64+1, 101-64, 0, 82-64, 6-8+1};
         byte b = 0b00101011;
-        DNABuffer buffer = new DNABuffer(new DNA(data));
+        DNABuffer buffer = new DNABuffer(new DNA(data, new int[0]));
         for (int i = 0; i < dataSize.length; i++) {
             assertEquals(expectedData[i], buffer.getGrayCodeBits(dataSize[i]), "DNA not correctly decoded");
         }
@@ -85,7 +85,7 @@ public class TestDNABuffer {
     @Test
     void testDNAGrayCodeBounds(){
         byte[] data = new byte[] {2,32, -127, 52, 1, -92, 20, 23, 84, -2};
-        DNABuffer buffer = new DNABuffer(new DNA(data));
+        DNABuffer buffer = new DNABuffer(new DNA(data, new int[0]));
         for (int i = 0; i < data.length * 4; i++) {
             int val = buffer.getGrayCodeBits(2);
             Assertions.assertTrue(val >= -1 && val <= 1, "Gray code value is outside bounds of 2 bit value: " + val);
@@ -95,7 +95,7 @@ public class TestDNABuffer {
     @Test
     void testDNABytes(){
         byte[] data = new byte[] {2,32, -127, 52, 1, -92, 127, 23, -128, -2};
-        DNABuffer buffer = new DNABuffer(new DNA(data));
+        DNABuffer buffer = new DNABuffer(new DNA(data, new int[0]));
         for (int i = 0; i < data.length; i++) {
             // Throw away fourth iteration to change up
             if(i == 4){

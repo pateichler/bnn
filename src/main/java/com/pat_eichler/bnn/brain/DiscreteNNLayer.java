@@ -25,11 +25,12 @@ public class DiscreteNNLayer {
     }
 
     public void init(DNABuffer buffer){
-        for (int i = 0; i < weights.length; i++)
-            weights[i] = buffer.getGrayCodeBits(weightBitSize);
-
-        for (int i = 0; i < biases.length; i++)
+        for (int i = 0; i < numOutputs; i++) {
+            buffer.startSegment();
             biases[i] = buffer.getGrayCodeBits(biasBitSize);
+            for (int j = 0; j < numInputs; j++)
+                weights[i*numOutputs + j] = buffer.getGrayCodeBits(weightBitSize);
+        }
     }
 
     public int[] calculateOutputs(int[] inputs){

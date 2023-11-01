@@ -20,13 +20,6 @@ public class ConwayConnectionGenetics {
         createTable.parseDNA(buffer);
     }
 
-    public int getBitSize(){
-        int size = 0;
-        for (CompressTable changeTable : changeTables)
-            size += changeTable.getBitSize();
-        return size + createTable.getBitSize();
-    }
-
     public boolean getConnectionIncreaseStrength(byte preNeuronState, byte postNeuronState, byte ntType) {
         return changeTables[ntType].getTableEntry(preNeuronState, postNeuronState) == 1;
     }

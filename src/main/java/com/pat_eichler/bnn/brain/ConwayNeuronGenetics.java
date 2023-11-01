@@ -30,21 +30,6 @@ public class ConwayNeuronGenetics {
         }
     }
 
-    public int getBitSize(){
-        int numBits = 0;
-        numBits += preGlobalNN.getBitSize();
-        numBits += postGlobalNN.getBitSize();
-        int stateBitSize = getStateBitSize();
-
-        for (DiscreteNNLayer layer : stateNN)
-            numBits += layer.getBitSize();
-
-        // For each output state branch
-        numBits += outputBranchStates.length * stateBitSize;
-
-        return numBits;
-    }
-
     int[] getMiddleLayer(short[] preNeuronStateCounts, short[] postNeuronStateCounts){
         //TODO: Consider changing data to ints to avoid this copy
         int[] preInput = new int[preNeuronStateCounts.length];

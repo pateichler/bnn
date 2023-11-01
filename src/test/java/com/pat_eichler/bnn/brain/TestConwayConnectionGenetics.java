@@ -30,11 +30,11 @@ public class TestConwayConnectionGenetics {
         return settings;
     }
 
-    @Test
-    void testGetBitSize(){
-        try(BrainSettings o = getSettings().setContext()) {
-            ConwayConnectionGenetics g = new ConwayConnectionGenetics();
-            Assertions.assertEquals((6 * 4) * 3 + 6 * 4, g.getBitSize());
-        }
-    }
+//    @Test
+//    void testGetBitSize(){
+//        try(BrainSettings o = getSettings().setContext()) {
+//            ConwayConnectionGenetics g = new ConwayConnectionGenetics();
+//            Assertions.assertEquals((6 * 4) * 3 + 6 * 4, g.getBitSize());
+//        }
+//    }
 }

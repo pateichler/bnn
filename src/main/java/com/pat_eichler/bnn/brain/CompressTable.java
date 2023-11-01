@@ -18,9 +18,11 @@ public class CompressTable {
     }
 
     public void parseDNA(DNABuffer buffer){
+        buffer.startSegment();
         for (int i = 0; i < rowTranslations.length; i++)
             rowTranslations[i] = (byte)(buffer.getBits(entrySize) % table.length);
 
+        buffer.startSegment();
         for (int i = 0; i < colTranslations.length; i++)
             colTranslations[i] = (byte)(buffer.getBits(entrySize) % table.length);
     }
