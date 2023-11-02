@@ -47,7 +47,11 @@ public class DNABuffer {
             ret ^= val;
         }
 
-        int i = ret - (1 << (numBits - 1));
+        return ret;
+    }
+
+    public int getBalancedGrayCodeBits(int numBits){
+        int i = getGrayCodeBits(numBits) - (1 << (numBits - 1));
         return i >= 0 ? i : i + 1;
     }
 
