@@ -5,6 +5,7 @@ public class ConwayNeuronGenetics {
     DiscreteNNLayer postGlobalNN;
     DiscreteNNLayer[] stateNN;
     byte[] outputBranchStates;
+    int[] outputBranchStatesDelay;
 
     public ConwayNeuronGenetics(){
         BrainSettings settings = BrainSettings.getInstance();
@@ -13,6 +14,7 @@ public class ConwayNeuronGenetics {
         postGlobalNN = new DiscreteNNLayer(settings.neuronSettings.NUM_STATES, settings.geneticSettings.POST_STATE_NN_INNER_LAYER, DiscreteNNLayer.ActivationFunction.RELU, weightBitSize, biasBitSize);
 
         outputBranchStates = new byte[settings.neuronSettings.NUM_STATES * 2];
+        outputBranchStatesDelay = new int[settings.neuronSettings.NUM_STATES * 2];
         stateNN = new DiscreteNNLayer[settings.neuronSettings.NUM_STATES];
         int middleLayer = settings.geneticSettings.getMiddleLayerSize();
         for (int i = 0; i < stateNN.length; i++)
@@ -23,10 +25,15 @@ public class ConwayNeuronGenetics {
         preGlobalNN.init(buffer);
         postGlobalNN.init(buffer);
         int stateBitSize = getStateBitSize();
+        int delayBitSize = BrainSettings.getInstance().geneticSettings.STATE_DELAY_BITS;
         for (int i = 0; i < stateNN.length; i++) {
             stateNN[i].init(buffer);
+            buffer.startSegment();
             outputBranchStates[i*2] = (byte)buffer.getBits(stateBitSize);
+            outputBranchStatesDelay[i*2] = buffer.getGrayCodeBits(delayBitSize);
+            buffer.startSegment();
             outputBranchStates[i*2+1] = (byte)buffer.getBits(stateBitSize);
+            outputBranchStatesDelay[i*2+1] = buffer.getGrayCodeBits(delayBitSize);
         }
     }
 
@@ -46,14 +53,15 @@ public class ConwayNeuronGenetics {
         return Common.combineArray(preOutput, postOutput);
     }
 
-    public byte getNeuronStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, byte curState) {
+    public Neuron.NeuronStateChange getNeuronStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, byte curState) {
         int val = stateNN[curState].calculateOutputs(getMiddleLayer(preNeuronStateCounts, postNeuronStateCounts))[0];
-        byte state = val > 0 ? outputBranchStates[curState * 2] : outputBranchStates[curState * 2 + 1];
+        int branch = val > 0 ? curState * 2 : curState * 2 + 1;
+        byte state = outputBranchStates[branch];
         //TODO: Probably want to handle this better
         if(state >= BrainSettings.getInstance().neuronSettings.NUM_STATES)
             state = curState;
 
-        return state;
+        return new Neuron.NeuronStateChange(state, outputBranchStatesDelay[branch]);
     }
 
     private int getStateBitSize(){

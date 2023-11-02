@@ -9,7 +9,8 @@ import java.util.Random;
 
 public class TestConwayNeuronGenetics {
 
-    private final byte[] data = {102, 57, -62, 47, -90, -106, 89, 90, -75, -75, 42, -40, 45, 29, 113, 19, 98, 29, -124, 51, 108, -34, -95, -8, 57, 76, -77, 0, 126, 77, 30};
+    private final byte[] data = {102, 57, -62, 47, -90, -106, 89, 90, -75, -75, 42, -40, 45, 29, 113, 19, 98, 29,
+            -124, 51, 108, -34, -95, -8, 57, 76, -77, 0, 126, 77, 30, 23, 52, -23, -42, -123, 93, 44, 12, 0};
 
     private BrainSettings getSettings(){
         BrainSettings settings = new BrainSettings();
@@ -22,6 +23,7 @@ public class TestConwayNeuronGenetics {
         settings.geneticSettings.POST_STATE_NN_INNER_LAYER = 2;
         settings.geneticSettings.NN_WEIGHT_BITS = 4;
         settings.geneticSettings.NN_BIASES_BITS = 8;
+        settings.geneticSettings.STATE_DELAY_BITS = 3;
 
         return settings;
     }
@@ -45,8 +47,9 @@ public class TestConwayNeuronGenetics {
             short[] preCounts = new short[]{10, 0, 3, 20};
             short[] postCounts = new short[]{0, 2, 0, 5};
             for (int i = 0; i < 4; i++) {
-                byte b = g.getNeuronStateChange(preCounts, postCounts, (byte) i);
-                Assertions.assertTrue(b >= 0 && b < 4);
+                Neuron.NeuronStateChange s = g.getNeuronStateChange(preCounts, postCounts, (byte) i);
+                Assertions.assertTrue(s.nextState >= 0 && s.nextState < 4);
+                Assertions.assertTrue(s.stateDelay >= 0);
             }
         }
     }

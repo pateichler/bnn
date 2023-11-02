@@ -58,6 +58,8 @@ public class BrainSettings implements AutoCloseable {
     public Integer PRE_STATE_NN_INNER_LAYER;
     @ConfigProperty(defualtValue = "2", comment = "Size of the middle layer of post state neural network.")
     public Integer POST_STATE_NN_INNER_LAYER;
+    @ConfigProperty(defualtValue = "3", comment = "Number of bits to encode state delay.")
+    public Integer STATE_DELAY_BITS;
 
     public static byte[][] CONN_CHANGE_TABLE= {
             {0, 0, 0, 0},

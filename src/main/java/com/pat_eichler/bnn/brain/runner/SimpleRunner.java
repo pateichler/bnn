@@ -1,6 +1,7 @@
 package com.pat_eichler.bnn.brain.runner;
 
 import com.pat_eichler.bnn.brain.Brain;
+import com.pat_eichler.bnn.brain.Neuron;
 
 import java.util.Random;
 
@@ -11,6 +12,8 @@ public class SimpleRunner extends BrainRunner {
     int teachIterations = 500;
     int testIterations = 50;
     int numOptions = 4;
+
+    boolean init;
 
     public SimpleRunner(Brain brain) {
         super(brain);
@@ -27,7 +30,7 @@ public class SimpleRunner extends BrainRunner {
 
     void grow() {
         for(int i = 0; i < growthPeriod; i++)
-            brain.step();
+            stepBrain();
     }
 
     double learn(int iterations) {
@@ -37,7 +40,7 @@ public class SimpleRunner extends BrainRunner {
             int n = (int)(rand.nextDouble() * numOptions);
             brain.neurons[n].addNT((short)20, 2, (byte) 1, false);
 
-            brain.step();
+            stepBrain();
 
             boolean correct = false;
 
@@ -59,7 +62,7 @@ public class SimpleRunner extends BrainRunner {
                 if(correct)
                     break;
 
-                brain.step();
+                stepBrain();
             }
 
             if(correct)
@@ -67,12 +70,21 @@ public class SimpleRunner extends BrainRunner {
 
             int learnSteps = 50 + rand.nextInt(20);
             for(int x = 0; x < learnSteps; x++) {
-                if(!correct && x < 40)
+//                if(!correct && x < 40)
+                if(x < 40)
                     brain.neurons[brain.neurons.length - numOptions + n].addNT((short) 20, 1, (byte) 2, false);
-                brain.step();
+                stepBrain();
             }
         }
 
         return (double)numCorrect / iterations;
+    }
+    
+    void stepBrain(){
+        for (int i = 0; i < numOptions; i++)
+            brain.neurons[i].addNT((short) (init ? 1 : 5), 1, (byte) 1, false);
+
+        init = true;
+        brain.step();
     }
 }

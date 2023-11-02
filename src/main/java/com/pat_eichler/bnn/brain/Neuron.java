@@ -9,9 +9,12 @@ public class Neuron {
   private final GeneticsModel genetics;
   private boolean active;
   private byte state;
+  private byte nextState;
   private boolean stateChanged;
   private boolean receivedInput;
   private int activationCount;
+  private int nextStateDelay = -1;
+//  private boolean nextStateFinal;
   private final short[] preNeuronStates;
   public final ArrayList<Connection> connections;
   public final ArrayList<Neuron> backRefNeurons;
@@ -25,6 +28,16 @@ public class Neuron {
     public PostNeuronMode(boolean updateState, boolean searchConnections){
       this.updateState = updateState;
       this.searchConnections = searchConnections;
+    }
+  }
+
+  public static class NeuronStateChange{
+    public byte nextState;
+    public int stateDelay;
+
+    public NeuronStateChange(byte nextState, int stateDelay) {
+      this.nextState = nextState;
+      this.stateDelay = stateDelay;
     }
   }
 
@@ -81,11 +94,27 @@ public class Neuron {
   }
 
   void adjustState(){
-      short[] postNeuronStates =  getPostStateNeurons();
-      byte s = genetics.getNeuronStateChange(preNeuronStates, postNeuronStates, state);
-      stateChanged = state != s;
-      if(stateChanged)
-        setState(s);
+    if(nextStateDelay > 0)
+      nextStateDelay--;
+
+    //TODO: could probably avoid check if the state is determined by having NeuronStateChange contain variable for determined count
+//    if(nextStateDelay > determinedStateDelay)
+//    if(!nextStateFinal) {
+    short[] postNeuronStates = getPostStateNeurons();
+    NeuronStateChange n = genetics.getNeuronStateChange(preNeuronStates, postNeuronStates, state);
+    if(nextStateDelay == -1 || n.stateDelay < nextStateDelay){
+      nextStateDelay = n.stateDelay;
+      nextState = n.nextState;
+    }
+//    }
+    if(nextStateDelay == 0) {
+      stateChanged = state != nextState;
+//      nextStateFinal = false;
+      nextStateDelay = -1;
+
+      if (stateChanged)
+        setState(nextState);
+    }
   }
 
   void adjustConnections() {

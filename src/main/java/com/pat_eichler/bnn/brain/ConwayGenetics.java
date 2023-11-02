@@ -43,7 +43,7 @@ public class ConwayGenetics extends GeneticsModel{
 //    }
 
     @Override
-    public byte getNeuronStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, byte curState) {
+    public Neuron.NeuronStateChange getNeuronStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, byte curState) {
         return neuronGenetics.getNeuronStateChange(preNeuronStateCounts, postNeuronStateCounts, curState);
     }
 
