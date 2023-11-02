@@ -65,9 +65,9 @@ public class SimpleRunner extends BrainRunner {
             if(correct)
                 numCorrect++;
 
-            int learnSteps = 200 + rand.nextInt(100);
+            int learnSteps = 50 + rand.nextInt(20);
             for(int x = 0; x < learnSteps; x++) {
-                if(!correct && x < 25)
+                if(!correct && x < 40)
                     brain.neurons[brain.neurons.length - numOptions + n].addNT((short) 20, 1, (byte) 2, false);
                 brain.step();
             }

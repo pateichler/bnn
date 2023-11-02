@@ -32,7 +32,8 @@ public class Connection {
     if(genetics.getConnectionIncreaseStrength(startNeuron.getState(), endNeuron.getState(), ntType))
       setStrength(Math.min(strength + connectionSettings.STRENGTH_INCREASE, connectionSettings.MAX_STRENGTH));
     else
-      setStrength(strength << 1);
+      setStrength(strength - connectionSettings.STRENGTH_DECREASE);
+//      setStrength(strength << 1);
 
     return strength > 0;
   }

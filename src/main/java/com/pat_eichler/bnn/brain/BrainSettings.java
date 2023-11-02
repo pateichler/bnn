@@ -44,6 +44,8 @@ public class BrainSettings implements AutoCloseable {
     public Integer MAX_STRENGTH;
     @ConfigProperty(defualtValue = "32", comment = "Strength increase per connection strengthen update.")
     public Integer STRENGTH_INCREASE;
+    @ConfigProperty(defualtValue = "1", comment = "Strength decrease per connection strengthen update.")
+    public Integer STRENGTH_DECREASE;
   }
 
   @ConfigClass
