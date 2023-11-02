@@ -10,7 +10,7 @@ public class SimpleRunner extends BrainRunner {
     int growthPeriod = 0;
     int teachIterations = 500;
     int testIterations = 50;
-    int numOptions = 2;
+    int numOptions = 4;
 
     public SimpleRunner(Brain brain) {
         super(brain);
@@ -62,17 +62,15 @@ public class SimpleRunner extends BrainRunner {
                 brain.step();
             }
 
-
-            if(!correct)
-                brain.neurons[brain.neurons.length - numOptions + n].addNT((short) 20, 1, (byte) 2, false);
-            else {
+            if(correct)
                 numCorrect++;
-                //Possibly do a reward neurotransmitter here
-            }
 
             int learnSteps = 200 + rand.nextInt(100);
-            for(int x = 0; x < learnSteps; x++)
+            for(int x = 0; x < learnSteps; x++) {
+                if(!correct && x < 25)
+                    brain.neurons[brain.neurons.length - numOptions + n].addNT((short) 20, 1, (byte) 2, false);
                 brain.step();
+            }
         }
 
         return (double)numCorrect / iterations;

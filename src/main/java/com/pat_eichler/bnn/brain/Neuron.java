@@ -110,8 +110,9 @@ public class Neuron {
   short[] getPostStateNeurons(){
     short[] p = new short[BrainSettings.getInstance().neuronSettings.NUM_STATES];
     for (Connection c : connections) {
-      if(c.endNeuron.stateChanged)
-        p[c.endNeuron.state] += c.getPhysicalStrength();
+      //TODO: Possibly put back state change
+//      if(c.endNeuron.stateChanged)
+      p[c.endNeuron.state] += c.getPhysicalStrength();
     }
 
     return p;
