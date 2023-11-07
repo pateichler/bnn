@@ -13,6 +13,11 @@ public class ConwayConnectionGenetics {
         createTable = new CompressTable(BrainSettings.GeneticSettings.CONN_CREATE_TABLE, BrainSettings.getInstance().neuronSettings.NUM_STATES);
     }
 
+    public ConwayConnectionGenetics(CompressTable[] changeTables, CompressTable createTable) {
+        this.changeTables = changeTables;
+        this.createTable = createTable;
+    }
+
     public void parseDNA(DNABuffer buffer){
         for (CompressTable changeTable : changeTables)
             changeTable.parseDNA(buffer);

@@ -7,7 +7,7 @@ public class Brain {
   public final BrainSettings settings;
   public final GeneticsModel genetics;
   public Neuron[] neurons;
-  private final BrainClock clock;
+  public final BrainClock clock;
   private final Random rand;
 
   //TODO: Probably want to have a class that manages current genetics
@@ -54,6 +54,18 @@ public class Brain {
       this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
       init();
     }
+  }
+
+  //TODO: Make private
+  public Brain(GeneticsModel genetics){
+    if(!BrainSettings.hasInstance())
+      throw new RuntimeException("No brain settings set");
+
+    this.rand = new Random();
+    this.genetics = genetics;
+    this.settings = null;
+    this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
+    init();
   }
 
   private void init(){

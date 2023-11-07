@@ -68,7 +68,7 @@ public class SimpleRunner extends BrainRunner {
             if(correct)
                 numCorrect++;
 
-            int learnSteps = 50 + rand.nextInt(20);
+            int learnSteps = 60 + rand.nextInt(20);
             for(int x = 0; x < learnSteps; x++) {
 //                if(!correct && x < 40)
                 if(x < 40)

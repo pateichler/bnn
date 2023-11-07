@@ -18,6 +18,12 @@ public class ConwayGenetics extends GeneticsModel{
         parseDNA(new DNABuffer(this.dna));
     }
 
+    public ConwayGenetics(ConwayNeuronGenetics neuronGenetics, ConwayConnectionGenetics connectionGenetics){
+        super((DNA) null);
+        this.neuronGenetics = neuronGenetics;
+        this.connectionGenetics = connectionGenetics;
+    }
+
     private void parseDNA(DNABuffer buffer){
         neuronGenetics.parseDNA(buffer);
         connectionGenetics.parseDNA(buffer);

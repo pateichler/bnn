@@ -35,6 +35,8 @@ public class Connection {
       setStrength(strength - connectionSettings.STRENGTH_DECREASE);
 //      setStrength(strength << 1);
 
+//    if(strength <= 0)
+//      System.out.println("Removing connection between " + startNeuron.getState() + " - " + endNeuron.getState());
     return strength > 0;
   }
   

@@ -21,6 +21,14 @@ public class ConwayNeuronGenetics {
             stateNN[i] = new DiscreteNNLayer(middleLayer, 1, DiscreteNNLayer.ActivationFunction.NONE, weightBitSize, biasBitSize);
     }
 
+    public ConwayNeuronGenetics(DiscreteNNLayer preGlobalNN, DiscreteNNLayer postGlobalNN, DiscreteNNLayer[] stateNN, byte[] outputBranchStates, int[] outputBranchStatesDelay) {
+        this.preGlobalNN = preGlobalNN;
+        this.postGlobalNN = postGlobalNN;
+        this.stateNN = stateNN;
+        this.outputBranchStates = outputBranchStates;
+        this.outputBranchStatesDelay = outputBranchStatesDelay;
+    }
+
     public void parseDNA(DNABuffer buffer){
         preGlobalNN.init(buffer);
         postGlobalNN.init(buffer);

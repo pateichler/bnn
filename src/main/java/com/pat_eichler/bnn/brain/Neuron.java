@@ -126,6 +126,7 @@ public class Neuron {
     addConnection(new Connection(neuron, (byte)(ntType - 1)));
   }
   public void addConnection(Connection c){
+//    System.out.println("Adding connection to neuron in state: " + c.endNeuron.getState() + " with type " + c.getNtType());
     if(connections.size() >= BrainSettings.getInstance().neuronSettings.MAX_CONNECTIONS)
       throw new RuntimeException("Unable to add connection ... maximum connections reached");
 
