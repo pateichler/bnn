@@ -7,7 +7,7 @@ public class Brain {
   public final BrainSettings settings;
   public final GeneticsModel genetics;
   public Neuron[] neurons;
-  public final BrainClock clock;
+//  public final BrainClock clock;
   private final Random rand;
 
   //TODO: Probably want to have a class that manages current genetics
@@ -28,7 +28,7 @@ public class Brain {
     if(BrainSettings.hasInstance()){
       settings = null;
       this.genetics = getGeneticsModel(dna);
-      this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
+//      this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
       init();
     }else{
       //  TODO: Create brain with default config
@@ -36,7 +36,7 @@ public class Brain {
       settings = new BrainSettings();
       try(BrainSettings o = BrainSettings.getInstance().setContext()){
         this.genetics = getGeneticsModel(dna);
-        this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
+//        this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
         init();
       }
     }
@@ -51,7 +51,7 @@ public class Brain {
 
     try(BrainSettings o = BrainSettings.getInstance().setContext()){
       this.genetics = getGeneticsModel(dna);
-      this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
+//      this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
       init();
     }
   }
@@ -64,7 +64,7 @@ public class Brain {
     this.rand = new Random();
     this.genetics = genetics;
     this.settings = null;
-    this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
+//    this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
     init();
   }
 
@@ -89,10 +89,8 @@ public class Brain {
     for(Neuron n : neurons)
       n.step();
 
-    for (int i = 0; i < neurons.length; i++)
-      neurons[i].postStep(clock.getMode(i));
-
-    clock.increment();
+    for (Neuron n : neurons)
+      n.postStep();
   }
 
   public Neuron[] getRandomNeurons(int numNeurons){

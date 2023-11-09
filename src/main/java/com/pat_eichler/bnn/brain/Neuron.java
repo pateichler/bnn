@@ -24,6 +24,7 @@ public class Neuron {
   private int deadCount = -1;
   private final Brain brain;
   private final Random rand;
+  private final NeuronClock clock;
 
   public static class PostNeuronMode{
     public boolean updateState;
@@ -51,6 +52,8 @@ public class Neuron {
     connections = new ArrayList<>(settings.MAX_CONNECTIONS);
     backRefNeurons = new ArrayList<>(settings.MAX_BACK_REF_NEURONS);
     preNeuronStates = new short[settings.NUM_STATES];
+    clock = new NeuronClock();
+
     this.brain = brain;
     this.type = type;
     this.genetics = genetics;
@@ -96,21 +99,22 @@ public class Neuron {
       c.trigger(this);
   }
   
-  public void postStep(PostNeuronMode mode) {
+  public void postStep() {
     if(isDying())
       return;
 
+    clock.increment();
     active = activationCount > BrainSettings.getInstance().connectionSettings.NT_THRESHOLD;
     activationCount = 0;
 
-    if(mode.updateState){
+    if(clock.isStateCycle()){
       adjustState();
       adjustConnections();
 
       Arrays.fill(preNeuronStates, (short) 0);
     }
 
-    if (mode.searchConnections){
+    if (clock.isSearchCycle()){
       this.searchConnections();
       backRefNeurons.clear();
       receivedInput = false;
