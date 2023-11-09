@@ -5,7 +5,10 @@ import com.pat_eichler.bnn.brain.Neuron;
 
 public class GeneticsCellCall {
 
-    CellCall[] calls = new CellCall[]{new ReplicationCellCall()};
+    CellCall[] calls = new CellCall[]{
+            new ReplicationCellCall(),
+            new DeathCellCall()
+    };
 
     final int parameterSize;
     final int parameterMask;

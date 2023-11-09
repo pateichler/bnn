@@ -29,14 +29,14 @@ public class Connection {
   }
   
   public boolean adjust(Neuron startNeuron, GeneticsModel genetics) {
+    if(endNeuron.isDead())
+      return false;
+
     if(genetics.getConnectionIncreaseStrength(startNeuron.getState(), endNeuron.getState(), ntType))
       setStrength(Math.min(strength + connectionSettings.STRENGTH_INCREASE, connectionSettings.MAX_STRENGTH));
     else
       setStrength(strength - connectionSettings.STRENGTH_DECREASE);
-//      setStrength(strength << 1);
 
-//    if(strength <= 0)
-//      System.out.println("Removing connection between " + startNeuron.getState() + " - " + endNeuron.getState());
     return strength > 0;
   }
   

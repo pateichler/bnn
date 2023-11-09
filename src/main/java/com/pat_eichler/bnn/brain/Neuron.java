@@ -21,6 +21,7 @@ public class Neuron {
   public final ArrayList<Connection> connections;
   public final ArrayList<Neuron> backRefNeurons;
   private int coolDown = 0;
+  private int deadCount = -1;
   private final Brain brain;
   private final Random rand;
 
@@ -56,12 +57,11 @@ public class Neuron {
     this.rand = rand;
   }
 
-  public Neuron createConnectedNeuron(byte neuronType, byte connType, byte initState){
+  public void createConnectedNeuron(byte neuronType, byte connType, byte initState){
     //TODO: Add neuron to list
     Neuron newNeuron = new Neuron(brain, neuronType, genetics, rand);
     newNeuron.setState(initState);
     this.connections.add(new Connection(newNeuron, connType));
-    return newNeuron;
   }
 
   //TODO: To test:
@@ -75,6 +75,13 @@ public class Neuron {
   }
   
   public void step() {
+    if(isDying()){
+      deadCount --;
+      if(deadCount <= 0)
+        die();
+      return;
+    }
+
     if(coolDown > 0)
       coolDown --;
 
@@ -90,6 +97,9 @@ public class Neuron {
   }
   
   public void postStep(PostNeuronMode mode) {
+    if(isDying())
+      return;
+
     active = activationCount > BrainSettings.getInstance().connectionSettings.NT_THRESHOLD;
     activationCount = 0;
 
@@ -121,7 +131,6 @@ public class Neuron {
   }
 
   void adjustConnections() {
-    //TODO: Check if this correctly removes neuron
     connections.removeIf(connection -> !connection.adjust(this, genetics));
   }
 
@@ -204,7 +213,7 @@ public class Neuron {
   }
 
   void addBackRefNeuron(Neuron neuron){
-    if(backRefNeurons.size() >= BrainSettings.getInstance().neuronSettings.MAX_BACK_REF_NEURONS)
+    if(backRefNeurons.size() >= BrainSettings.getInstance().neuronSettings.MAX_BACK_REF_NEURONS || isDying())
       return;
 
     backRefNeurons.add(neuron);
@@ -216,6 +225,12 @@ public class Neuron {
         return true;
     }
     return false;
+  }
+
+  void die(){
+    connections.clear();
+    backRefNeurons.clear();
+    //TODO: Remove from brain list
   }
 
   public boolean isActive() {
@@ -235,5 +250,16 @@ public class Neuron {
   }
   public short getPreNeuronStateCount(int i){
     return preNeuronStates[i];
+  }
+  public void setDying(int deadCount){
+    if(deadCount < 0)
+      throw new RuntimeException("Can't set dead count to less than 0");
+    this.deadCount = deadCount;
+  }
+  public boolean isDying(){
+    return deadCount >= 0;
+  }
+  public boolean isDead(){
+    return deadCount == 0;
   }
 }
