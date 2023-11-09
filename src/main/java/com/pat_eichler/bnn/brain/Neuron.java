@@ -7,13 +7,15 @@ import java.util.Random;
 public class Neuron {
 
   private final GeneticsModel genetics;
+  private final byte type;
   private boolean active;
   private byte state;
-  private byte nextState;
+//  private byte nextState;
   private boolean stateChanged;
   private boolean receivedInput;
   private int activationCount;
-  private int nextStateDelay = -1;
+  private NeuronStateChange nextStateChange;
+//  private int nextStateDelay = -1;
 //  private boolean nextStateFinal;
   private final short[] preNeuronStates;
   public final ArrayList<Connection> connections;
@@ -32,24 +34,36 @@ public class Neuron {
   }
 
   public static class NeuronStateChange{
-    public byte nextState;
+    public final byte nextState;
     public int stateDelay;
+    public boolean nextStateFinal;
 
-    public NeuronStateChange(byte nextState, int stateDelay) {
+    public NeuronStateChange(byte nextState, int stateDelay, boolean nextStateFinal) {
       this.nextState = nextState;
       this.stateDelay = stateDelay;
+      this.nextStateFinal = nextStateFinal;
     }
   }
 
-  public Neuron(Brain brain, GeneticsModel genetics, Random rand) {
+  public Neuron(Brain brain, byte type, GeneticsModel genetics, Random rand) {
     BrainSettings.NeuronSettings settings = BrainSettings.getInstance().neuronSettings;
     connections = new ArrayList<>(settings.MAX_CONNECTIONS);
     backRefNeurons = new ArrayList<>(settings.MAX_BACK_REF_NEURONS);
     preNeuronStates = new short[settings.NUM_STATES];
     this.brain = brain;
+    this.type = type;
     this.genetics = genetics;
     this.rand = rand;
   }
+
+  public Neuron createConnectedNeuron(byte neuronType, byte connType, byte initState){
+    //TODO: Add neuron to list
+    Neuron newNeuron = new Neuron(brain, neuronType, genetics, rand);
+    newNeuron.setState(initState);
+    this.connections.add(new Connection(newNeuron, connType));
+    return newNeuron;
+  }
+
   //TODO: To test:
   // Activation, cool down, getSearchNeurons
 
@@ -94,26 +108,15 @@ public class Neuron {
   }
 
   void adjustState(){
-    if(nextStateDelay > 0)
-      nextStateDelay--;
+    // Update our next state
+    nextStateChange = genetics.getNeuronStateChange(preNeuronStates, getPostStateNeurons(), this, nextStateChange);
 
-    //TODO: could probably avoid check if the state is determined by having NeuronStateChange contain variable for determined count
-//    if(nextStateDelay > determinedStateDelay)
-//    if(!nextStateFinal) {
-    short[] postNeuronStates = getPostStateNeurons();
-    NeuronStateChange n = genetics.getNeuronStateChange(preNeuronStates, postNeuronStates, state);
-    if(nextStateDelay == -1 || n.stateDelay < nextStateDelay){
-      nextStateDelay = n.stateDelay;
-      nextState = n.nextState;
-    }
-//    }
-    if(nextStateDelay == 0) {
-      stateChanged = state != nextState;
-//      nextStateFinal = false;
-      nextStateDelay = -1;
-
-      if (stateChanged)
-        setState(nextState);
+    if(nextStateChange.stateDelay >= 0)
+      nextStateChange.stateDelay--;
+    // State delay is less than 0 ... set new state
+    else{
+      setState(nextStateChange.nextState);
+      nextStateChange = null;
     }
   }
 
@@ -217,6 +220,9 @@ public class Neuron {
 
   public boolean isActive() {
     return active;
+  }
+  public byte getType(){
+    return type;
   }
   public byte getState(){
     return state;

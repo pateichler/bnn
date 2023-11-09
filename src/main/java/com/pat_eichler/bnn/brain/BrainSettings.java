@@ -17,6 +17,8 @@ public class BrainSettings implements AutoCloseable {
   public static class NeuronSettings{
     @ConfigProperty(defualtValue = "10", comment = "Number of neuron states.")
     public Integer NUM_STATES;
+    @ConfigProperty(defualtValue = "4", comment = "Number of neuron types.")
+    public Integer NUM_NEURON_TYPES;
     @ConfigProperty(defualtValue = "1", comment = "Minimum wait time till neuron can fire again.")
     public Integer TRIGGER_COOL_DOWN;
     @ConfigProperty(defualtValue = "20", comment = "Maximum number of outgoing connections a neuron can have. Neurons can have unlimited incoming connections.")

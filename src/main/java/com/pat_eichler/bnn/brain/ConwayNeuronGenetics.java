@@ -1,11 +1,15 @@
 package com.pat_eichler.bnn.brain;
 
+import com.pat_eichler.bnn.brain.cellcall.GeneticsCellCall;
+
 public class ConwayNeuronGenetics {
     DiscreteNNLayer preGlobalNN;
     DiscreteNNLayer postGlobalNN;
     DiscreteNNLayer[] stateNN;
+    GeneticsCellCall cellCall;
     byte[] outputBranchStates;
     int[] outputBranchStatesDelay;
+    int[] stateCellCalls;
 
     public ConwayNeuronGenetics(){
         BrainSettings settings = BrainSettings.getInstance();
@@ -19,6 +23,9 @@ public class ConwayNeuronGenetics {
         int middleLayer = settings.geneticSettings.getMiddleLayerSize();
         for (int i = 0; i < stateNN.length; i++)
             stateNN[i] = new DiscreteNNLayer(middleLayer, 1, DiscreteNNLayer.ActivationFunction.NONE, weightBitSize, biasBitSize);
+
+        stateCellCalls = new int[settings.neuronSettings.NUM_STATES];
+        cellCall = new GeneticsCellCall();
     }
 
     public ConwayNeuronGenetics(DiscreteNNLayer preGlobalNN, DiscreteNNLayer postGlobalNN, DiscreteNNLayer[] stateNN, byte[] outputBranchStates, int[] outputBranchStatesDelay) {
@@ -42,6 +49,8 @@ public class ConwayNeuronGenetics {
             buffer.startSegment();
             outputBranchStates[i*2+1] = (byte)buffer.getBits(stateBitSize);
             outputBranchStatesDelay[i*2+1] = buffer.getGrayCodeBits(delayBitSize);
+
+            stateCellCalls[i] = buffer.getBits(cellCall.getCallSize());
         }
     }
 
@@ -61,15 +70,44 @@ public class ConwayNeuronGenetics {
         return Common.combineArray(preOutput, postOutput);
     }
 
-    public Neuron.NeuronStateChange getNeuronStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, byte curState) {
+    boolean isDelayFinal(int delay, byte curState){
+        return delay <= Math.min(outputBranchStates[curState*2], outputBranchStates[curState*2+1]);
+    }
+
+    Neuron.NeuronStateChange getNNStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, byte curState, Neuron.NeuronStateChange curChange){
         int val = stateNN[curState].calculateOutputs(getMiddleLayer(preNeuronStateCounts, postNeuronStateCounts))[0];
         int branch = val > 0 ? curState * 2 : curState * 2 + 1;
         byte state = outputBranchStates[branch];
+
         //TODO: Probably want to handle this better
         if(state >= BrainSettings.getInstance().neuronSettings.NUM_STATES)
             state = curState;
 
-        return new Neuron.NeuronStateChange(state, outputBranchStatesDelay[branch]);
+        int delay = outputBranchStatesDelay[branch];
+        if(curChange != null && curChange.stateDelay <= delay){
+            curChange.nextStateFinal = isDelayFinal(curChange.stateDelay, curState);
+            return curChange;
+        }
+
+        return new Neuron.NeuronStateChange(state, outputBranchStatesDelay[branch], isDelayFinal(delay, curState));
+    }
+
+    public Neuron.NeuronStateChange getNeuronStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, Neuron neuron, Neuron.NeuronStateChange curChange) {
+        // Next state is final ... return state change unchanged
+        if(curChange != null && curChange.nextStateFinal)
+            return curChange;
+
+        byte curState = neuron.getState();
+
+        // Only call cell calls if just activated state
+        if(curChange == null) {
+            int c = cellCall.cellCall(neuron, stateCellCalls[curState], outputBranchStates[curState * 2], outputBranchStates[curState * 2 + 1]);
+            if (c >= 0)
+                return new Neuron.NeuronStateChange(outputBranchStates[curState * 2 + c], outputBranchStatesDelay[curState * 2 + c], true);
+        }
+
+        // Cell call did not override next state selection ... use NN to decide next state
+        return getNNStateChange(preNeuronStateCounts, postNeuronStateCounts, curState, curChange);
     }
 
     private int getStateBitSize(){

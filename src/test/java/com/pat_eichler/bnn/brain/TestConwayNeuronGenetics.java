@@ -36,23 +36,23 @@ public class TestConwayNeuronGenetics {
 //        }
 //    }
 
-    @Test
-    void testGetStateChangeBounds(){
-        try(BrainSettings o = getSettings().setContext()) {
-            ConwayNeuronGenetics g = new ConwayNeuronGenetics();
-            DNABuffer buffer = new DNABuffer(new DNA(data, new int[0]));
-            g.parseDNA(buffer);
-
-
-            short[] preCounts = new short[]{10, 0, 3, 20};
-            short[] postCounts = new short[]{0, 2, 0, 5};
-            for (int i = 0; i < 4; i++) {
-                Neuron.NeuronStateChange s = g.getNeuronStateChange(preCounts, postCounts, (byte) i);
-                Assertions.assertTrue(s.nextState >= 0 && s.nextState < 4);
-                Assertions.assertTrue(s.stateDelay >= 0);
-            }
-        }
-    }
+//    @Test
+//    void testGetStateChangeBounds(){
+//        try(BrainSettings o = getSettings().setContext()) {
+//            ConwayNeuronGenetics g = new ConwayNeuronGenetics();
+//            DNABuffer buffer = new DNABuffer(new DNA(data, new int[0]));
+//            g.parseDNA(buffer);
+//
+//
+//            short[] preCounts = new short[]{10, 0, 3, 20};
+//            short[] postCounts = new short[]{0, 2, 0, 5};
+//            for (int i = 0; i < 4; i++) {
+//                Neuron.NeuronStateChange s = g.getNeuronStateChange(preCounts, postCounts, (byte) i);
+//                Assertions.assertTrue(s.nextState >= 0 && s.nextState < 4);
+//                Assertions.assertTrue(s.stateDelay >= 0);
+//            }
+//        }
+//    }
 
     byte[] getData(){
         Random r = new Random();

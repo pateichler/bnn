@@ -12,7 +12,7 @@ public abstract class GeneticsModel extends Genetics{
         super(dna);
     }
 
-    public abstract Neuron.NeuronStateChange getNeuronStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, byte curState);
+    public abstract Neuron.NeuronStateChange getNeuronStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, Neuron neuron, Neuron.NeuronStateChange curChange);
     public abstract boolean getConnectionIncreaseStrength(byte preNeuronState, byte postNeuronState, byte ntType);
 
     public abstract byte getConnectionCreation(byte preNeuronState, byte postNeuronState);

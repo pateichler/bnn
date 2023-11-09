@@ -69,10 +69,11 @@ public class Brain {
   }
 
   private void init(){
-    neurons = new Neuron[BrainSettings.getInstance().NEURON_COUNT];
-
-    for(int i = 0; i < neurons.length; i ++)
-      neurons[i] = new Neuron(this, genetics, rand);
+    //TODO: Init with one neuron
+//    neurons = new Neuron[BrainSettings.getInstance().NEURON_COUNT];
+//
+//    for(int i = 0; i < neurons.length; i ++)
+//      neurons[i] = new Neuron(this, genetics, rand);
   }
   
   public void step() {
