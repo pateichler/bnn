@@ -11,7 +11,7 @@ public class BrainSettings implements AutoCloseable {
   public GeneticSettings geneticSettings;
 
   @ConfigProperty(defualtValue = "20", comment = "Number of neurons in the brain.")
-  public Integer NEURON_COUNT;
+  public Integer MAX_NEURON_COUNT;
 
   @ConfigClass
   public static class NeuronSettings{

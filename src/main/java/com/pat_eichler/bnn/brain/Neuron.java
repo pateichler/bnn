@@ -64,6 +64,8 @@ public class Neuron {
     //TODO: Add neuron to list
     Neuron newNeuron = new Neuron(brain, neuronType, genetics, rand);
     newNeuron.setState(initState);
+    newNeuron.addBackRefNeuron(this);
+    brain.addNeuron(newNeuron);
     this.connections.add(new Connection(newNeuron, connType));
   }
 
@@ -199,13 +201,11 @@ public class Neuron {
       return searchNeurons;
     }else{
       // We don't have any downstream neurons ... check to see if we should connect via backref neurons
-      if(!backRefNeurons.isEmpty() || receivedInput){
+      if(!backRefNeurons.isEmpty() || receivedInput)
         return backRefNeurons.toArray(new Neuron[0]);
-      }else{
-        // We don't have any back ref neurons or have received any input, so we are probably a lonely neuron ... find
-        // a random neuron to connect to
-        return brain.getRandomNeurons(BrainSettings.getInstance().neuronSettings.MAX_BACK_REF_NEURONS);
-      }
+
+      // No backref neurons ... return nothing
+      return new Neuron[0];
     }
   }
 
@@ -232,9 +232,10 @@ public class Neuron {
   }
 
   void die(){
+    deadCount = 0;
     connections.clear();
     backRefNeurons.clear();
-    //TODO: Remove from brain list
+    brain.removeNeuron(this);
   }
 
   public boolean isActive() {

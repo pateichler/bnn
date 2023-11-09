@@ -1,13 +1,16 @@
 package com.pat_eichler.bnn.brain;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.LinkedList;
 
 public class Brain {
   public final BrainSettings settings;
   public final GeneticsModel genetics;
-  public Neuron[] neurons;
-//  public final BrainClock clock;
+//  public Neuron[] neurons;
+  public ArrayList<Neuron>[] neurons;
+  private int neuronCount = 0;
   private final Random rand;
 
   //TODO: Probably want to have a class that manages current genetics
@@ -28,7 +31,6 @@ public class Brain {
     if(BrainSettings.hasInstance()){
       settings = null;
       this.genetics = getGeneticsModel(dna);
-//      this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
       init();
     }else{
       //  TODO: Create brain with default config
@@ -36,7 +38,6 @@ public class Brain {
       settings = new BrainSettings();
       try(BrainSettings o = BrainSettings.getInstance().setContext()){
         this.genetics = getGeneticsModel(dna);
-//        this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
         init();
       }
     }
@@ -51,7 +52,6 @@ public class Brain {
 
     try(BrainSettings o = BrainSettings.getInstance().setContext()){
       this.genetics = getGeneticsModel(dna);
-//      this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
       init();
     }
   }
@@ -64,16 +64,18 @@ public class Brain {
     this.rand = new Random();
     this.genetics = genetics;
     this.settings = null;
-//    this.clock = new BrainClock(BrainSettings.getInstance().NEURON_COUNT, BrainSettings.getInstance().neuronSettings);
     init();
   }
 
+  @SuppressWarnings("unchecked")
   private void init(){
     //TODO: Init with one neuron
-//    neurons = new Neuron[BrainSettings.getInstance().NEURON_COUNT];
-//
-//    for(int i = 0; i < neurons.length; i ++)
-//      neurons[i] = new Neuron(this, genetics, rand);
+    neurons = (ArrayList<Neuron>[]) new ArrayList[BrainSettings.getInstance().neuronSettings.NUM_NEURON_TYPES];
+    for (int i = 0; i < neurons.length; i++)
+      neurons[i] = new ArrayList<>();
+
+    Neuron firstNeuron = new Neuron(this, (byte)0, genetics, rand);
+    addNeuron(firstNeuron);
   }
   
   public void step() {
@@ -86,44 +88,45 @@ public class Brain {
   }
 
   private void stepBrain(){
-    for(Neuron n : neurons)
-      n.step();
+    for (ArrayList<Neuron> types : neurons)
+      for (Neuron n : types)
+        n.step();
 
-    for (Neuron n : neurons)
-      n.postStep();
+    for (ArrayList<Neuron> types : neurons)
+      for (Neuron n : types)
+        n.postStep();
+
+    reduceNeurons(neuronCount - BrainSettings.getInstance().MAX_NEURON_COUNT);
   }
 
-  public Neuron[] getRandomNeurons(int numNeurons){
-    Neuron[] n = new Neuron[numNeurons];
-    //TODO: Could make better to avoid repeats
+  void reduceNeurons(int numNeurons){
+    if(numNeurons <= 0)
+      return;
+
     for (int i = 0; i < numNeurons; i++)
-      n[i] = neurons[rand.nextInt(neurons.length)];
-
-    return n;
+      getKillNeuron().die();
   }
 
-  public void printNumActive() {
-    int a = 0;
-    for(Neuron n : neurons)
-      if(n.isActive())
-        a++;
-    
-    System.out.println("Number active: " + a);
+  public void addNeuron(Neuron n){
+    neurons[n.getType()].add(n);
+    neuronCount++;
   }
-  
-  public void printConnectionStrengths() {
-    for(Neuron n : neurons) {
-      for(Connection c : n.connections)
-        System.out.print(c.getStrength());
-      System.out.println();
-    }
+
+  public void removeNeuron(Neuron n){
+    neurons[n.getType()].remove(n);
+    neuronCount--;
   }
-  
-  public void printConnectionTypes() {
-    for(Neuron n : neurons) {
-      for(Connection c : n.connections)
-        System.out.print(c.getNtType());
-      System.out.println();
-    }
+
+  // This method could potentially be improved to try to keep important neurons alive
+  Neuron getKillNeuron(){
+    for (int i = neurons.length - 1; i >= 0; i--)
+      if(!neurons[i].isEmpty())
+        return neurons[i].get(rand.nextInt(neurons[i].size()));
+
+    return null;
+  }
+
+  public boolean isDead(){
+    return neuronCount <= 0;
   }
 }
