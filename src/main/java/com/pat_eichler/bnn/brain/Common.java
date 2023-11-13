@@ -32,4 +32,23 @@ public class Common {
 
         return array;
     }
+
+    //TODO: Test method
+    public static int[] combineArrays(int[]... arrays){
+        int size = 0;
+        for (int[] a : arrays)
+            size += a.length;
+
+        int[] newArray = new int[size];
+
+        int count = 0;
+        for (int[] array : arrays) {
+            for (int a : array) {
+                newArray[count] = a;
+                count ++;
+            }
+        }
+
+        return newArray;
+    }
 }

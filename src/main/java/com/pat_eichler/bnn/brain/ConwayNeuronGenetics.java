@@ -20,7 +20,7 @@ public class ConwayNeuronGenetics {
         outputBranchStates = new byte[settings.neuronSettings.NUM_STATES * 2];
         outputBranchStatesDelay = new int[settings.neuronSettings.NUM_STATES * 2];
         stateNN = new DiscreteNNLayer[settings.neuronSettings.NUM_STATES];
-        int middleLayer = settings.geneticSettings.getMiddleLayerSize();
+        int middleLayer = settings.geneticSettings.getMiddleLayerSize() + 1;
         for (int i = 0; i < stateNN.length; i++)
             stateNN[i] = new DiscreteNNLayer(middleLayer, 1, DiscreteNNLayer.ActivationFunction.NONE, weightBitSize, biasBitSize);
 
@@ -54,7 +54,7 @@ public class ConwayNeuronGenetics {
         }
     }
 
-    int[] getMiddleLayer(short[] preNeuronStateCounts, short[] postNeuronStateCounts){
+    int[] getMiddleLayer(short[] preNeuronStateCounts, short[] postNeuronStateCounts, int neuronDensity){
         //TODO: Consider changing data to ints to avoid this copy
         int[] preInput = new int[preNeuronStateCounts.length];
         for (int i = 0; i < preInput.length; i++)
@@ -67,15 +67,15 @@ public class ConwayNeuronGenetics {
         int[] preOutput = preGlobalNN.calculateOutputs(preInput);
         int[] postOutput = postGlobalNN.calculateOutputs(postInput);
 
-        return Common.combineArray(preOutput, postOutput);
+        return Common.combineArrays(preOutput, postOutput, new int[]{neuronDensity});
     }
 
     boolean isDelayFinal(int delay, byte curState){
         return delay <= Math.min(outputBranchStates[curState*2], outputBranchStates[curState*2+1]);
     }
 
-    Neuron.NeuronStateChange getNNStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, byte curState, Neuron.NeuronStateChange curChange){
-        int val = stateNN[curState].calculateOutputs(getMiddleLayer(preNeuronStateCounts, postNeuronStateCounts))[0];
+    Neuron.NeuronStateChange getNNStateChange(short[] preNeuronStateCounts, short[] postNeuronStateCounts, int neuronDensity, byte curState, Neuron.NeuronStateChange curChange){
+        int val = stateNN[curState].calculateOutputs(getMiddleLayer(preNeuronStateCounts, postNeuronStateCounts, neuronDensity))[0];
         int branch = val > 0 ? curState * 2 : curState * 2 + 1;
         byte state = outputBranchStates[branch];
 
@@ -107,7 +107,7 @@ public class ConwayNeuronGenetics {
         }
 
         // Cell call did not override next state selection ... use NN to decide next state
-        return getNNStateChange(preNeuronStateCounts, postNeuronStateCounts, curState, curChange);
+        return getNNStateChange(preNeuronStateCounts, postNeuronStateCounts, neuron.getNeuronDensity(), curState, curChange);
     }
 
     private int getStateBitSize(){

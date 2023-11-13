@@ -1,15 +1,16 @@
 package com.pat_eichler.bnn.brain;
 
+import com.pat_eichler.bnn.brain.neuroncontainer.NeuronContainer;
+import com.pat_eichler.bnn.brain.neuroncontainer.NeuronContainerBuilder;
+
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.LinkedList;
 
 public class Brain {
   public final BrainSettings settings;
   public final GeneticsModel genetics;
 //  public Neuron[] neurons;
-  public ArrayList<Neuron>[] neurons;
+  public NeuronContainer[] neuronContainers;
   private int neuronCount = 0;
   private final Random rand;
 
@@ -23,22 +24,22 @@ public class Brain {
 
   //TODO: Organize constructors better so less repeated code
   public Brain(){
-    this((DNA) null);
+    this((DNA) null, (NeuronContainerBuilder) null);
   }
 
-  public Brain(DNA dna){
+  public Brain(DNA dna, NeuronContainerBuilder builder){
     rand = new Random();
     if(BrainSettings.hasInstance()){
       settings = null;
       this.genetics = getGeneticsModel(dna);
-      init();
+      init(builder);
     }else{
       //  TODO: Create brain with default config
       System.out.println("Loading default settings");
       settings = new BrainSettings();
       try(BrainSettings o = BrainSettings.getInstance().setContext()){
         this.genetics = getGeneticsModel(dna);
-        init();
+        init(builder);
       }
     }
   }
@@ -52,7 +53,7 @@ public class Brain {
 
     try(BrainSettings o = BrainSettings.getInstance().setContext()){
       this.genetics = getGeneticsModel(dna);
-      init();
+      init(null);
     }
   }
 
@@ -64,15 +65,13 @@ public class Brain {
     this.rand = new Random();
     this.genetics = genetics;
     this.settings = null;
-    init();
+    init(null);
   }
 
-  @SuppressWarnings("unchecked")
-  private void init(){
-    //TODO: Init with one neuron
-    neurons = (ArrayList<Neuron>[]) new ArrayList[BrainSettings.getInstance().neuronSettings.NUM_NEURON_TYPES];
-    for (int i = 0; i < neurons.length; i++)
-      neurons[i] = new ArrayList<>();
+  private void init(NeuronContainerBuilder containerBuilder){
+    if(containerBuilder == null)
+      containerBuilder = new NeuronContainerBuilder();
+    this.neuronContainers = containerBuilder.createContainer();
 
     Neuron firstNeuron = new Neuron(this, (byte)0, genetics, rand);
     addNeuron(firstNeuron);
@@ -88,13 +87,11 @@ public class Brain {
   }
 
   private void stepBrain(){
-    for (ArrayList<Neuron> types : neurons)
-      for (Neuron n : types)
-        n.step();
+    for (NeuronContainer container : neuronContainers)
+      container.step(false);
 
-    for (ArrayList<Neuron> types : neurons)
-      for (Neuron n : types)
-        n.postStep();
+    for (NeuronContainer container : neuronContainers)
+      container.step(true);
 
     reduceNeurons(neuronCount - BrainSettings.getInstance().MAX_NEURON_COUNT);
   }
@@ -108,25 +105,30 @@ public class Brain {
   }
 
   public void addNeuron(Neuron n){
-    neurons[n.getType()].add(n);
+    neuronContainers[n.getType()].addNeuron(n);
     neuronCount++;
   }
 
   public void removeNeuron(Neuron n){
-    neurons[n.getType()].remove(n);
+    neuronContainers[n.getType()].removeNeuron(n);
     neuronCount--;
   }
 
   // This method could potentially be improved to try to keep important neurons alive
   Neuron getKillNeuron(){
-    for (int i = neurons.length - 1; i >= 0; i--)
-      if(!neurons[i].isEmpty())
-        return neurons[i].get(rand.nextInt(neurons[i].size()));
+    for (int i = neuronContainers.length - 1; i >= 0; i--) {
+      Neuron n = neuronContainers[i].getKillNeuron(rand);
+      if (n != null)
+        return n;
+    }
 
     return null;
   }
 
   public boolean isDead(){
     return neuronCount <= 0;
+  }
+  public int getNeuronCount(){
+    return neuronCount;
   }
 }

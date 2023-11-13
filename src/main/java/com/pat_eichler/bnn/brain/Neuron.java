@@ -267,4 +267,7 @@ public class Neuron {
   public boolean isDead(){
     return deadCount == 0;
   }
+  public int getNeuronDensity(){
+    return brain.getNeuronCount();
+  }
 }
