@@ -2,10 +2,10 @@ package com.pat_eichler.bnn.brain.neuroncontainer;
 
 import com.pat_eichler.bnn.brain.BrainSettings;
 
-public class NeuronContainerBuilder {
+public class BrainNeuronContainerBuilder {
     private final NeuronContainer[] containers;
 
-    public NeuronContainerBuilder(){
+    public BrainNeuronContainerBuilder(){
         containers = new NeuronContainer[BrainSettings.getInstance().neuronSettings.NUM_NEURON_TYPES];
     }
 
@@ -13,11 +13,11 @@ public class NeuronContainerBuilder {
         containers[i] = container;
     }
 
-    public NeuronContainer[] createContainer(){
+    public BrainNeuronContainer createContainer(){
         for (int i = 0; i < containers.length; i++)
             if(containers[i] == null)
                 containers[i] = new ListNeuronContainer();
 
-        return containers;
+        return new BrainNeuronContainer(containers);
     }
 }
