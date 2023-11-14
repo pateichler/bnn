@@ -23,8 +23,6 @@ public class BrainSettings implements AutoCloseable {
     public Integer TRIGGER_COOL_DOWN;
     @ConfigProperty(defualtValue = "20", comment = "Maximum number of outgoing connections a neuron can have. Neurons can have unlimited incoming connections.")
     public Integer MAX_CONNECTIONS;
-    @ConfigProperty(defualtValue = "3", comment = "Maximum number of back reference neurons. Back reference neurons are used in connection creation search algorithm.")
-    public Integer MAX_BACK_REF_NEURONS;
     @ConfigProperty(defualtValue = "5", comment = "Period of neuron state update (in steps).")
     public Integer STATE_UPDATE_PERIOD;
     @ConfigProperty(defualtValue = "4", comment = "Period of the connection search update (in state updates). @important Period is based off of state update update period. " +

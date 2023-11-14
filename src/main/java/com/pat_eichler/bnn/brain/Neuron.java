@@ -10,21 +10,19 @@ public class Neuron {
   private final byte type;
   private boolean active;
   private byte state;
-//  private byte nextState;
   private boolean stateChanged;
   private boolean receivedInput;
   private int activationCount;
   private NeuronStateChange nextStateChange;
-//  private int nextStateDelay = -1;
-//  private boolean nextStateFinal;
   private final short[] preNeuronStates;
   public final ArrayList<Connection> connections;
-  public final ArrayList<Neuron> backRefNeurons;
+//  public final ArrayList<Neuron> backRefNeurons;
   private int coolDown = 0;
   private int deadCount = -1;
   private final Brain brain;
   private final Random rand;
   private final NeuronClock clock;
+  private Neuron parent;
 
   public static class PostNeuronMode{
     public boolean updateState;
@@ -47,14 +45,15 @@ public class Neuron {
     }
   }
 
-  public Neuron(Brain brain, byte type, GeneticsModel genetics, Random rand) {
+  public Neuron(Brain brain, Neuron parent, byte type, GeneticsModel genetics, Random rand) {
     BrainSettings.NeuronSettings settings = BrainSettings.getInstance().neuronSettings;
     connections = new ArrayList<>(settings.MAX_CONNECTIONS);
-    backRefNeurons = new ArrayList<>(settings.MAX_BACK_REF_NEURONS);
+//    backRefNeurons = new ArrayList<>(settings.MAX_BACK_REF_NEURONS);
     preNeuronStates = new short[settings.NUM_STATES];
     clock = new NeuronClock();
 
     this.brain = brain;
+    this.parent = parent;
     this.type = type;
     this.genetics = genetics;
     this.rand = rand;
@@ -62,9 +61,9 @@ public class Neuron {
 
   public void createConnectedNeuron(byte neuronType, byte connType, byte initState){
     //TODO: Add neuron to list
-    Neuron newNeuron = new Neuron(brain, neuronType, genetics, rand);
+    Neuron newNeuron = new Neuron(brain, this, neuronType, genetics, rand);
     newNeuron.setState(initState);
-    newNeuron.addBackRefNeuron(this);
+//    newNeuron.addBackRefNeuron(this);
     brain.addNeuron(newNeuron);
     this.connections.add(new Connection(newNeuron, connType));
   }
@@ -109,6 +108,8 @@ public class Neuron {
     active = activationCount > BrainSettings.getInstance().connectionSettings.NT_THRESHOLD;
     activationCount = 0;
 
+    checkParentNeuron();
+
     if(clock.isStateCycle()){
       adjustState();
       adjustConnections();
@@ -118,8 +119,21 @@ public class Neuron {
 
     if (clock.isSearchCycle()){
       this.searchConnections();
-      backRefNeurons.clear();
+//      backRefNeurons.clear();
       receivedInput = false;
+    }
+  }
+
+  void checkParentNeuron(){
+    if(parent.isDead()) {
+      if(parent.parent == null) {
+        if (parent.equals(brain.getRootNeuron())) {
+          brain.setRootNeuron(this);
+          parent = null;
+        }else
+          parent = brain.getRootNeuron();
+      }else
+        parent = parent.parent;
     }
   }
 
@@ -172,7 +186,7 @@ public class Neuron {
       return;
 
     for (Neuron newNeuron : getSearchNeurons()) {
-      if(newNeuron == null || hasConnection(newNeuron))
+      if(newNeuron == null || hasConnection(newNeuron) || newNeuron.isDead())
         continue;
 
       byte ntType = genetics.getConnectionCreation(state, newNeuron.state);
@@ -186,44 +200,37 @@ public class Neuron {
 
   Neuron[] getSearchNeurons(){
     //TODO: Method is not efficent ... it can return duplicate neurons
-    if(!connections.isEmpty()){
-      // We have a downstream neurons
-      Neuron[] searchNeurons = new Neuron[BrainSettings.getInstance().neuronSettings.CONN_SEARCH_SIZE];
-      for (int i = 0; i < searchNeurons.length; i++) {
-        Neuron conNeuron = getRandomConnectedNeuron();
-        Neuron newNeuron = conNeuron.getRandomConnectedNeuron();
-        if(newNeuron != null)
-          searchNeurons[i] = newNeuron;
-        else
-          conNeuron.addBackRefNeuron(this);
-      }
-
-      return searchNeurons;
-    }else{
-      // We don't have any downstream neurons ... check to see if we should connect via backref neurons
-      if(!backRefNeurons.isEmpty() || receivedInput)
-        return backRefNeurons.toArray(new Neuron[0]);
-
-      // No backref neurons ... return nothing
-      return new Neuron[0];
+    Neuron[] searchNeurons = new Neuron[BrainSettings.getInstance().neuronSettings.CONN_SEARCH_SIZE];
+    for (int i = 0; i < searchNeurons.length; i++) {
+      Neuron conNeuron = getRandomConnectedNeuron();
+      Neuron newNeuron = conNeuron.getRandomConnectedNeuron();
+      searchNeurons[i] = newNeuron;
     }
+
+    return searchNeurons;
   }
 
   Neuron getRandomConnectedNeuron(){
     if(connections.isEmpty())
-      return null;
+      return parent;
 
-    return connections.get(rand.nextInt(connections.size())).endNeuron;
+    int r = rand.nextInt(connections.size() + 1);
+    if(r >= connections.size())
+      return parent;
+    return connections.get(r).endNeuron;
   }
 
-  void addBackRefNeuron(Neuron neuron){
-    if(backRefNeurons.size() >= BrainSettings.getInstance().neuronSettings.MAX_BACK_REF_NEURONS || isDying())
-      return;
-
-    backRefNeurons.add(neuron);
-  }
+//  void addBackRefNeuron(Neuron neuron){
+//    if(backRefNeurons.size() >= BrainSettings.getInstance().neuronSettings.MAX_BACK_REF_NEURONS || isDying())
+//      return;
+//
+//    backRefNeurons.add(neuron);
+//  }
 
   boolean hasConnection(Neuron neuron){
+    if(neuron.equals(this))
+      return true;
+
     for (Connection connection : connections) {
       if(connection.endNeuron.equals(neuron))
         return true;
@@ -234,7 +241,7 @@ public class Neuron {
   void die(){
     deadCount = 0;
     connections.clear();
-    backRefNeurons.clear();
+//    backRefNeurons.clear();
     brain.removeNeuron(this);
   }
 

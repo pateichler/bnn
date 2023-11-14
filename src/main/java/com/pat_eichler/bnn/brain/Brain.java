@@ -7,8 +7,8 @@ import java.util.Random;
 public class Brain {
   public final BrainSettings settings;
   public final GeneticsModel genetics;
-//  public Neuron[] neurons;
   public BrainNeuronContainer neuronContainer;
+  private Neuron rootNeuron;
   private final Random rand;
 
   //TODO: Probably want to have a class that manages current genetics
@@ -70,8 +70,8 @@ public class Brain {
       container = new BrainNeuronContainer();
     this.neuronContainer = container;
 
-    Neuron firstNeuron = new Neuron(this, (byte)0, genetics, rand);
-    addNeuron(firstNeuron);
+    setRootNeuron(new Neuron(this, null, (byte)0, genetics, rand));
+    addNeuron(getRootNeuron());
   }
   
   public void step() {
@@ -104,6 +104,14 @@ public class Brain {
 
   public void removeNeuron(Neuron n){
     neuronContainer.removeNeuron(n);
+  }
+
+  public Neuron getRootNeuron(){
+    return rootNeuron;
+  }
+
+  public void setRootNeuron(Neuron n){
+    rootNeuron = n;
   }
 
   public boolean isDead(){
