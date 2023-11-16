@@ -21,22 +21,20 @@ public class Brain {
 
   //TODO: Organize constructors better so less repeated code
   public Brain(){
-    this((DNA) null, (BrainNeuronContainer) null);
+    this((DNA) null);
   }
 
-  public Brain(DNA dna, BrainNeuronContainer builder){
+  public Brain(DNA dna){
     rand = new Random();
     if(BrainSettings.hasInstance()){
       settings = null;
       this.genetics = getGeneticsModel(dna);
-      init(builder);
     }else{
       //  TODO: Create brain with default config
       System.out.println("Loading default settings");
       settings = new BrainSettings();
       try(BrainSettings o = BrainSettings.getInstance().setContext()){
         this.genetics = getGeneticsModel(dna);
-        init(builder);
       }
     }
   }
@@ -50,7 +48,6 @@ public class Brain {
 
     try(BrainSettings o = BrainSettings.getInstance().setContext()){
       this.genetics = getGeneticsModel(dna);
-      init(null);
     }
   }
 
@@ -62,10 +59,13 @@ public class Brain {
     this.rand = new Random();
     this.genetics = genetics;
     this.settings = null;
-    init(null);
   }
 
-  private void init(BrainNeuronContainer container){
+  public void initialize(){
+    initialize(null);
+  }
+
+  public void initialize(BrainNeuronContainer container){
     if(container == null)
       container = new BrainNeuronContainer();
     this.neuronContainer = container;
@@ -75,6 +75,9 @@ public class Brain {
   }
   
   public void step() {
+    if(neuronContainer == null)
+      throw new RuntimeException("Brain is not initialized. Call initialize() to initialize the brain");
+
     if(settings != null){
       try(BrainSettings o = BrainSettings.getInstance().setContext()){
         stepBrain();

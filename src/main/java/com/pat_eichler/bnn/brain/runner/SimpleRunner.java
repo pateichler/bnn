@@ -2,6 +2,8 @@ package com.pat_eichler.bnn.brain.runner;
 
 import com.pat_eichler.bnn.brain.Brain;
 import com.pat_eichler.bnn.brain.Neuron;
+import com.pat_eichler.bnn.brain.neuroncontainer.BrainNeuronContainerBuilder;
+import com.pat_eichler.bnn.brain.neuroncontainer.DirectNeuronContainer;
 
 import java.util.Random;
 
@@ -15,8 +17,18 @@ public class SimpleRunner extends BrainRunner {
 
     boolean init;
 
+    DirectNeuronContainer input, output;
+
     public SimpleRunner(Brain brain) {
         super(brain);
+
+        input = new DirectNeuronContainer(numOptions);
+        output = new DirectNeuronContainer(numOptions);
+        BrainNeuronContainerBuilder builder = new BrainNeuronContainerBuilder()
+                .addContainer((byte)1, input)
+                .addContainer((byte)2, output);
+        brain.initialize(builder.createContainer());
+
         rand = new Random();
     }
 
@@ -38,7 +50,7 @@ public class SimpleRunner extends BrainRunner {
 
         for(int i = 0; i < iterations; i++) {
             int n = (int)(rand.nextDouble() * numOptions);
-            brain.neurons[n].addNT((short)20, 2, (byte) 1, false);
+            input.addInput(n, (short)20, 2, (byte) 1);
 
             stepBrain();
 
@@ -46,7 +58,7 @@ public class SimpleRunner extends BrainRunner {
 
             outerLoop:for(int x = 0; x < 10; x++) {
                 for(int o = 0; o < numOptions; o++) {
-                    boolean state = brain.neurons[brain.neurons.length - numOptions + o].isActive();
+                    boolean state = output.getOutput(o);
 
                     // An output neuron is active ... check if it right
                     if(state) {
@@ -72,7 +84,7 @@ public class SimpleRunner extends BrainRunner {
             for(int x = 0; x < learnSteps; x++) {
 //                if(!correct && x < 40)
                 if(x < 40)
-                    brain.neurons[brain.neurons.length - numOptions + n].addNT((short) 20, 1, (byte) 2, false);
+                    output.addInput(n, (short) 20, 1, (byte) 2);
                 stepBrain();
             }
         }
@@ -82,7 +94,7 @@ public class SimpleRunner extends BrainRunner {
     
     void stepBrain(){
         for (int i = 0; i < numOptions; i++)
-            brain.neurons[i].addNT((short) (init ? 1 : 5), 1, (byte) 1, false);
+            input.addInput(i, (short) (init ? 1 : 5), 1, (byte) 1);
 
         init = true;
         brain.step();

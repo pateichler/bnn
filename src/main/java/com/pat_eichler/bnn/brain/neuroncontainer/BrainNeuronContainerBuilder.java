@@ -9,8 +9,9 @@ public class BrainNeuronContainerBuilder {
         containers = new NeuronContainer[BrainSettings.getInstance().neuronSettings.NUM_NEURON_TYPES];
     }
 
-    public void addContainer(int i, NeuronContainer container){
-        containers[i] = container;
+    public BrainNeuronContainerBuilder addContainer(byte neuronType, NeuronContainer container){
+        containers[neuronType] = container;
+        return this;
     }
 
     public BrainNeuronContainer createContainer(){
