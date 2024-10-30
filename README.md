@@ -1,8 +1,6 @@
 # BNN
 
-BNN is an attempt for a brain-like recurrent neural network. The idea is to make a recurrent neural network that uses cellular automata to update the weights. The automata rules are encoded into the genes, so it can be learned using the genetic algorithm.
-
-There are many possible models that this outline could be implemented. So far, all the models tested in this project has had no success. Outlined below is some of the ideas tested for implementing the genes of the cellular automata as well as the information available to the cellular automata.
+BNN (Brain-like neural network) was the idea to use graph cellular automata (GCA) to create a recurrent neural network (RNN). In the network, there are designated input, hidden, and output neurons. The goal is to feed data to the input neurons and get a desired output from the output neurons (such as the case in a RNN).
 
 ## Usage
 
@@ -10,9 +8,17 @@ Warning, this project was in the very early prototyping stages with no current i
 
 ## Motivation
 
-Adjusting weights in a RNN is commonly done through backpropagation, but it isn't a perfect solution for all types of learning. The goal of this project was to use cellular automata to adjust the neuron weights. Then the cellular automata rules will be learned through the genetic algorithm.
+The motivation for the project was from an attempt to combine the behavior of neurons and machine learning techniques to create a new model of AI. The rough model is outlined below:
 
-In model 2, I choose the rules for the cellular automata to be represented by a small neural network. The inputs of the cellular automata are the states of the connected neurons represented as neurotransmitters. The strength of connection between two neurons changes based on the two states of the neurons. This is represented in the genetics by a look-up table with the rows being the state of neuron 1 and columns state of neuron 2.
+Data is fed to input neurons by simple binary activation. Neurons are activated when incoming excitatory neurotransmitters reach a certain threshold. Once a neuron is activated, it sends neurotransmitters to all connected neurons. The neurotransmitters sent can cause a excitatory, inhibitory, or modulatory response on the neuron. The number of each neurotransmitter sent depends on the strength of the connection.
+
+The strength of each connection is constantly updated by the state of the neuron. The state of each neuron is updated by the states of connected neurons (such as the case with GCA). 
+
+The changes in neuron state and connection strength are both calculated using weights encoded in the neuron's "genetics". The genetics for the neurons can be optimized by using the genetic algorithm. The hope is that the genetics will slowly evolve to produce GCA that can trigger the right output neuron based on the input.
+
+In order to help train the network while growing, the correct output neurons are fed modulatory neurotransmitters to indicate the correct output.
+
+There are many possible models that this outline could be implemented. So far, all the models tested in this project has had no success.
 
 ## Future
 
